@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Dashboard - HealthPlus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-900 font-sans">
+
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-green-400 to-blue-500 text-white py-6">
+        <div class="container mx-auto flex justify-between items-center px-6">
+            <div class="text-xl font-semibold">
+                <span class="text-2xl font-bold">HealthPlus</span>
+            </div>
+            <!-- Navigation Links -->
+            <nav class="flex space-x-6">
+                <a href="#dashboard" class="hover:text-gray-200">Dashboard</a>
+                <a href="#tracking" class="hover:text-gray-200">Tracking</a>
+                <a href="#journal" class="hover:text-gray-200">Wellness Journal</a>
+                <a href="#exercise" class="hover:text-gray-200">Exercise</a>
+                <a href="#settings" class="hover:text-gray-200">Settings</a>
+            </nav>
+            <!-- Logout Button -->
+            <div>
+                <a href="#logout" class="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition">Log Out</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard Section -->
+    <section class="container mx-auto px-6 py-12">
+        <h1 class="text-3xl font-semibold text-center mb-8">Welcome to Your Dashboard</h1>
+        
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+            <!-- Steps Card -->
+            <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                <h3 class="text-xl font-semibold mb-2">Steps</h3>
+                <p class="text-3xl font-bold">8,250</p>
+                <p class="text-sm text-gray-500">Steps today</p>
+            </div>
+            <!-- Water Intake Card -->
+            <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                <h3 class="text-xl font-semibold mb-2">Water Intake</h3>
+                <p class="text-3xl font-bold">2.5L</p>
+                <p class="text-sm text-gray-500">Water consumed today</p>
+            </div>
+            <!-- Sleep Card -->
+            <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                <h3 class="text-xl font-semibold mb-2">Sleep</h3>
+                <p class="text-3xl font-bold">7h 30m</p>
+                <p class="text-sm text-gray-500">Sleep duration</p>
+            </div>
+            <!-- Meals Card -->
+            <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                <h3 class="text-xl font-semibold mb-2">Meals</h3>
+                <p class="text-3xl font-bold">1,500 kcal</p>
+                <p class="text-sm text-gray-500">Calories consumed today</p>
+            </div>
+        </div>
+
+        <!-- Action Links Section -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                <h3 class="text-xl font-semibold mb-2">Track Your Progress</h3>
+                <p class="text-sm text-gray-500 mb-4">Monitor your health activities and progress here.</p>
+                <a href="#tracking" class="bg-green-500 text-white py-2 px-6 rounded-md hover:bg-green-600 transition">Go to Tracking</a>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                <h3 class="text-xl font-semibold mb-2">Wellness Journal</h3>
+                <p class="text-sm text-gray-500 mb-4">Record your thoughts and reflections about your health journey.</p>
+                <a href="#journal" class="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 transition">Go to Journal</a>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                <h3 class="text-xl font-semibold mb-2">Exercise Routines</h3>
+                <p class="text-sm text-gray-500 mb-4">Set up and track your exercise plans.</p>
+                <a href="#exercise" class="bg-purple-500 text-white py-2 px-6 rounded-md hover:bg-purple-600 transition">Go to Exercises</a>
+            </div>
+        </div>
+
+        <!-- Additional Section (optional) -->
+        <div class="mt-12 text-center">
+            <a href="#settings" class="text-green-500 hover:text-green-700 text-sm">Manage Your Account Settings</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 text-center">
+        <p>© 2024 HealthPlus. All Rights Reserved.</p>
+    </footer>
+
+</body>
+
+</html>
