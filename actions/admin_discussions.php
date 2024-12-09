@@ -44,7 +44,7 @@ function fetchAllTopics($conn)
 {
     $sql = "SELECT t.topic_id, t.title, t.content, t.created_at, u.name 
             FROM health_topics t 
-            JOIN Users u ON t.user_id = u.user_id 
+            JOIN HealthUsers u ON t.user_id = u.user_id 
             ORDER BY t.created_at DESC";
     $result = $conn->query($sql);
 

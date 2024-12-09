@@ -44,7 +44,7 @@ function fetchAllComments($conn)
 {
     $sql = "SELECT c.comment_id, c.content, c.created_at, u.name, t.title AS topic_title 
             FROM Comments c
-            JOIN Users u ON c.user_id = u.user_id
+            JOIN HealthUsers u ON c.user_id = u.user_id
             JOIN health_topics t ON c.topic_id = t.topic_id
             ORDER BY c.created_at DESC";
     $result = $conn->query($sql);

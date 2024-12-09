@@ -32,7 +32,7 @@ if ($newPassword !== $confirmPassword) {
 }
 
 // Get the current password hash from the database
-$stmt = $conn->prepare("SELECT password_hash FROM Users WHERE user_id = ?");
+$stmt = $conn->prepare("SELECT password_hash FROM HealthUsers  WHERE user_id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $stmt->store_result();
@@ -55,7 +55,7 @@ if (!password_verify($currentPassword, $password_hash)) {
 $newPasswordHash = password_hash($newPassword, PASSWORD_BCRYPT);
 
 // Update the password in the database
-$stmt = $conn->prepare("UPDATE Users SET password_hash = ? WHERE user_id = ?");
+$stmt = $conn->prepare("UPDATE HealthUsers  SET password_hash = ? WHERE user_id = ?");
 $stmt->bind_param("si", $newPasswordHash, $user_id);
 
 if ($stmt->execute()) {

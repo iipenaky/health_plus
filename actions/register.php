@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Prepare a statement to check if the email is already registered in the database
-    $stmt = $conn->prepare('SELECT email FROM users WHERE email = ?');
+    $stmt = $conn->prepare('SELECT email FROM HealthUsers  WHERE email = ?');
     $stmt->bind_param('s', $email); // Bind the email parameter to the query
     $stmt->execute(); // Execute the query
     $results = $stmt->get_result(); // Get the result of the query
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $hashed_password = password_hash($password, PASSWORD_BCRYPT);
         
       // Prepare an INSERT statement to add the new user to the database
-        $sql = "INSERT INTO users (name, email, password_hash, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())";
+        $sql = "INSERT INTO HealthUsers  (name, email, password_hash, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())";
         $stmt = $conn->prepare($sql);
         // Correct bind_param variables and type string
         $stmt->bind_param('sss', $fname, $email, $hashed_password);

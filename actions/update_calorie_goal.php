@@ -20,6 +20,6 @@ if (!isset($_SESSION['user_id'])) {
 // Assuming user ID is 1 for this example
 $user_id = $_SESSION['user_id'];
 $calorie_goal = $_POST['calorie_goal'];
-$conn->query("UPDATE Users SET calorie_goal = $calorie_goal WHERE user_id = $user_id");
+$conn->query("UPDATE HealthUsers  SET calorie_goal = $calorie_goal WHERE user_id = $user_id");
 echo json_encode(['success' => true]);
 ?>

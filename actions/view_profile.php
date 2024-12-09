@@ -15,7 +15,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
 $user_id = $_SESSION['user_id'];
 
 // Query to fetch user profile information
-$stmt = $conn->prepare("SELECT name, email FROM Users WHERE user_id = ?");
+$stmt = $conn->prepare("SELECT name, email FROM HealthUsers  WHERE user_id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $stmt->store_result();

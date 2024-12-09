@@ -4,13 +4,13 @@ CREATE DATABASE IF NOT EXISTS health_plus;
 -- Use the health_plus database
 USE health_plus;
 
--- USERS TABLE
-CREATE TABLE Users (
+-- HealthUsers TABLE
+CREATE TABLE HealthUsers (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    role ENUM('user', 'admin') DEFAULT 'user', -- Role for differentiating users and admins
+    role ENUM('user', 'admin') DEFAULT 'user', -- Role for differentiating HealthUsers and admins
     int calorie_goal,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -26,7 +26,7 @@ CREATE TABLE Health_Activities (
     sleep_hours DECIMAL(4,2) DEFAULT 0.00, -- Hours
     exercise_time DECIMAL(4,2) DEFAULT 0.00, -- Hours
     mood VARCHAR(50), -- Optional column for tracking mood
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES HealthUsers(user_id) ON DELETE CASCADE
 );
 
 -- MEALS TABLE
@@ -37,7 +37,7 @@ CREATE TABLE Meals (
     meal_name VARCHAR(255) NOT NULL,
     calories INT DEFAULT 0,
     meal_type ENUM('breakfast', 'lunch', 'dinner', 'snack'), -- Consistent meal types
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES HealthUsers(user_id) ON DELETE CASCADE
 );
 
 -- EXERCISE ROUTINES TABLE
@@ -47,7 +47,7 @@ CREATE TABLE Exercise_Routines (
     routine_name VARCHAR(255) NOT NULL,
     duration DECIMAL(4,2) DEFAULT 0.00, -- Hours
     intensity ENUM('low', 'medium', 'high') NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES HealthUsers(user_id) ON DELETE CASCADE
 );
 
 -- JOURNAL ENTRIES TABLE
@@ -56,7 +56,7 @@ CREATE TABLE Journal_Entries (
     user_id INT NOT NULL,
     entry_date DATE NOT NULL,
     entry_text TEXT,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES HealthUsers(user_id) ON DELETE CASCADE
 );
 
 -- HEALTH QUIZ TABLE
@@ -66,7 +66,7 @@ CREATE TABLE Health_Quiz (
     quiz_date DATE NOT NULL,
     score INT DEFAULT 0,
     personalized_tips TEXT,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES HealthUsers(user_id) ON DELETE CASCADE
 );
 
 -- SETTINGS TABLE
@@ -76,7 +76,7 @@ CREATE TABLE Profile_Settings (
     health_goal VARCHAR(255), -- Customizable health goal
     notification_preferences JSON DEFAULT ('{"email":true, "sms":true, "reminders":true}'),
     privacy ENUM('public', 'private') DEFAULT 'public',
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES HealthUsers(user_id) ON DELETE CASCADE
 );
 
 -- CONTENT MANAGEMENT: HEALTH TIPS TABLE
@@ -102,7 +102,7 @@ CREATE TABLE Health_Topics (
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES HealthUsers(user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE Comments (
@@ -112,5 +112,5 @@ CREATE TABLE Comments (
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (topic_id) REFERENCES Health_Topics(topic_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES HealthUsers(user_id) ON DELETE CASCADE
 );

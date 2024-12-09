@@ -25,7 +25,7 @@ if (empty($name) || empty($email)) {
 }
 
 // Update the user information in the database
-$stmt = $conn->prepare("UPDATE Users SET name = ?, email = ? WHERE user_id = ?");
+$stmt = $conn->prepare("UPDATE HealthUsers  SET name = ?, email = ? WHERE user_id = ?");
 $stmt->bind_param("ssi", $name, $email,$user_id);
 
 if ($stmt->execute()) {
