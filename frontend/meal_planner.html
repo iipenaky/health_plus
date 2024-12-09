@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet Planner</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-green-400 to-blue-500 text-white py-6">
+        <div class="container mx-auto flex justify-between items-center px-6">
+            <h1 class="text-2xl font-bold">Diet Planner</h1>
+            <a href="dashboard.html" class="bg-white text-green-500 px-4 py-2 rounded-md">Back to Dashboard</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <section class="container mx-auto px-6 py-12">
+        <h2 class="text-3xl font-semibold text-center mb-8">Plan and Track Your Diet</h2>
+
+        <!-- Response Message -->
+        <div id="responseMessage" class="hidden text-center text-sm text-green-600"></div>
+
+        <!-- Calorie Goal -->
+        <div class="bg-white p-6 rounded-lg shadow-lg mb-12">
+            <h3 class="text-xl font-semibold mb-4">Calorie Goal</h3>
+            <p class="text-gray-700 mb-4">Your current goal: <span id="calorieGoal" class="font-bold">Loading...</span> kcal</p>
+            <label for="goal" class="block text-sm text-gray-700 mb-2">Set New Calorie Goal</label>
+            <input type="number" id="goal" name="goal" placeholder="Enter calorie goal" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none mb-4">
+            <button id="updateGoal" class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">Update Goal</button>
+        </div>
+
+        <!-- Diet Planning Form -->
+        <div class="bg-white p-6 rounded-lg shadow-lg mb-12">
+            <h3 class="text-xl font-semibold mb-4">Add a Meal</h3>
+            <form id="mealForm">
+                <label for="meal_date" class="block text-sm text-gray-700 mb-2">Meal Date</label>
+                <input type="date" id="meal_date" name="meal_date" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none mb-4" required>
+                <label for="meal_name" class="block text-sm text-gray-700 mb-2">Meal Name</label>
+                <input type="text" id="meal_name" name="meal_name" placeholder="Enter meal name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none mb-4" required>
+                <label for="calories" class="block text-sm text-gray-700 mb-2">Calories</label>
+                <input type="number" id="calories" name="calories" placeholder="Enter calories" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none mb-4" required min="0">
+                <label for="meal_type" class="block text-sm text-gray-700 mb-2">Meal Type</label>
+                <select id="meal_type" name="meal_type" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none mb-4" required>
+                    <option value="">Select meal type</option>
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                    <option value="snack">Snack</option>
+                </select>
+                <button type="submit" class="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 mt-4">Add Meal</button>
+            </form>
+        </div>
+
+        <!-- Meals and Feedback -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h3 class="text-xl font-semibold mb-4">Today's Meals</h3>
+            <div id="mealsList" class="text-gray-700">Loading meals...</div>
+            <div id="feedback" class="text-center text-lg font-semibold mt-4"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 text-center">
+        <p>© 2024 Diet Planner. All Rights Reserved.</p>
+    </footer>
+
+    <!-- AJAX Script -->
+    <script>
+        $(document).ready(function () {
+            const userId = 1; // Mocked user ID for example purposes
+
+            function loadGoal() {
+                $.ajax({
+                    url: '../actions/fetch_calorie_goal.php',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (response) {
+                        $('#calorieGoal').text(response.calorie_goal || '2000');
+                    }
+                });
+            }
+
+            function loadMeals() {
+                $.ajax({
+                    url: '../actions/fetch_meals.php',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (response) {
+                        let mealsHTML = '';
+                        let totalCalories = 0;
+                        if (response.meals.length > 0) {
+                            response.meals.forEach(meal => {
+                                totalCalories += meal.calories;
+                                mealsHTML += `<div>${meal.meal_name} - ${meal.calories} kcal</div>`;
+                            });
+                            $('#mealsList').html(mealsHTML);
+                            checkGoal(totalCalories, response.calorie_goal);
+                        } else {
+                            $('#mealsList').html('<p>No meals found for today.</p>');
+                        }
+                    }
+                });
+            }
+
+            function checkGoal(totalCalories, goal) {
+                const feedback = $('#feedback');
+                feedback.removeClass('text-green-600 text-red-600');
+                if (totalCalories > goal) {
+                    feedback.addClass('text-red-600').text(`You have exceeded your calorie goal by ${totalCalories - goal} kcal!`);
+                } else {
+                    feedback.addClass('text-green-600').text(`You are within your calorie goal. You have ${goal - totalCalories} kcal left.`);
+                }
+            }
+
+            $('#mealForm').on('submit', function (e) {
+                e.preventDefault();
+                const formData = $(this).serialize();
+                $.ajax({
+                    url: '../actions/add_meal.php',
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function () {
+                        loadMeals();
+                        $('#mealForm')[0].reset();
+                    }
+                });
+            });
+
+            $('#updateGoal').on('click', function () {
+                const newGoal = $('#goal').val();
+                $.ajax({
+                    url: '../actions/update_calorie_goal.php',
+                    type: 'POST',
+                    data: { calorie_goal: newGoal },
+                    dataType: 'json',
+                    success: function () {
+                        loadGoal();
+                        loadMeals();
+                    }
+                });
+            });
+
+            loadGoal();
+            loadMeals();
+        });
+    </script>
+</body>
+</html>

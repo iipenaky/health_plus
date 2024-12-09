@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exercise Routine - HealthPlus</title>
+  <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  <style>
+    /* Make the body fill the screen height */
+    html, body {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* This container takes up the remaining space */
+    section.container {
+        flex: 1;
+    }
+</style>
+</head>
+
+<body class="bg-gray-100 text-gray-900 font-sans">
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-6">
+    <div class="container mx-auto px-6 flex justify-between items-center">
+      <h1 class="text-2xl font-semibold">Exercise Routine Builder</h1>
+      <a href="dashboard.html" class="bg-white text-green-500 px-4 py-2 rounded-md hover:bg-gray-100">Back to Dashboard</a>
+    </div>
+  </header>
+
+  <!-- Main Section -->
+  <section class="container mx-auto px-6 py-12">
+    <!-- Routine Generator Form -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-12">
+      <h2 class="text-xl font-semibold mb-4">Create Your Custom Routine</h2>
+      <form id="routine-form" class="space-y-4">
+        <!-- Goal Selection -->
+        <div class="flex items-center justify-between">
+          <label for="goal" class="text-gray-700 font-semibold">Fitness Goal:</label>
+          <select id="goal" class="w-2/3 p-2 border-gray-300 rounded-md">
+            <option value="strength">Strength</option>
+            <option value="endurance">Endurance</option>
+            <option value="flexibility">Flexibility</option>
+          </select>
+        </div>
+        <!-- Experience Level Selection -->
+        <div class="flex items-center justify-between">
+          <label for="experience" class="text-gray-700 font-semibold">Experience Level:</label>
+          <select id="experience" class="w-2/3 p-2 border-gray-300 rounded-md">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </div>
+        <!-- Generate Routine Button -->
+        <button type="button" id="generate-routine" class="w-full py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition">
+          Generate Routine
+        </button>
+      </form>
+    </div>
+
+    <!-- Routine Display Section -->
+    <div id="routine-display" class="space-y-6">
+      <!-- Routines will be dynamically populated here -->
+    </div>
+
+    <!-- Feedback Section -->
+    <div id="feedback-section" class="mt-6 hidden">
+      <div class="bg-blue-100 border-l-4 border-blue-500 p-4" role="alert">
+        <p id="feedback-message" class="text-blue-700"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-6 text-center">
+    <p>© 2024 HealthPlus. All Rights Reserved.</p>
+</footer>
+
+  <!-- JavaScript -->
+  <script>
+    document.getElementById('generate-routine').addEventListener('click', async () => {
+      const goal = document.getElementById('goal').value;
+      const experience = document.getElementById('experience').value;
+      const routineDisplay = document.getElementById('routine-display');
+      const feedbackSection = document.getElementById('feedback-section');
+      const feedbackMessage = document.getElementById('feedback-message');
+  
+      // Reset previous displays
+      routineDisplay.innerHTML = '';
+      feedbackSection.classList.add('hidden');
+  
+      try {
+        // Send POST request to generate routine
+        const response = await fetch('../actions/get_routines.php', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `goal=${goal}&experience=${experience}`,
+        });
+  
+        const data = await response.json();
+  
+        if (data.error) {
+          // Show error feedback
+          feedbackMessage.textContent = data.error;
+          feedbackSection.classList.remove('hidden');
+          return;
+        }
+  
+        // Create routine overview card
+        const overviewCard = `
+          <div class="routine-overview p-4 bg-green-100 rounded-lg shadow-md">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-bold text-green-700">${data.routine_name}</h2>
+              <div class="flex items-center space-x-4">
+                <span class="text-gray-600">Duration: ${data.duration} hrs</span>
+                <span class="px-2 py-1 bg-${data.intensity === 'high' ? 'red' : data.intensity === 'medium' ? 'yellow' : 'green'}-200 text-${data.intensity === 'high' ? 'red' : data.intensity === 'medium' ? 'yellow' : 'green'}-700 rounded text-sm">
+                  ${data.intensity.charAt(0).toUpperCase() + data.intensity.slice(1)} Intensity
+                </span>
+              </div>
+            </div>
+            <ul class="space-y-2">
+              ${data.routine.map((exercise, index) => `
+                <li class="flex items-center justify-between p-2 bg-white rounded">
+                  <div class="flex items-center">
+                    <svg class="h-6 w-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M6 2l6 6 6-6M6 22l6-6 6 6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>${exercise[0]}</span>
+                  </div>
+                  <span class="text-gray-600">${exercise[1]} mins</span>
+                  <input type="checkbox" class="h-5 w-5 text-green-500 border-gray-300 rounded">
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+        `;
+  
+        routineDisplay.innerHTML = overviewCard;
+  
+        // Show success feedback
+        feedbackMessage.textContent = `Successfully generated ${goal} routine for ${experience} level!`;
+        feedbackSection.classList.remove('hidden');
+  
+      } catch (error) {
+        console.error('Failed to generate routine:', error);
+        feedbackMessage.textContent = 'An unexpected error occurred. Please try again.';
+        feedbackSection.classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>

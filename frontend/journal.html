@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Wellness Journal - HealthPlus</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+        /* Make the body fill the screen height */
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* This container takes up the remaining space */
+        section.container {
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 font-sans">
+    <!-- Header Section -->
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-6">
+    <div class="container mx-auto px-6 flex justify-between items-center">
+      <h1 class="text-2xl font-semibold">Wellness Journal</h1>
+      <a href="dashboard.html" class="bg-white text-green-500 px-4 py-2 rounded-md hover:bg-gray-100">Back to Dashboard</a>
+    </div>
+  </header>
+
+    <!-- Wellness Journal Section -->
+    <section class="container mx-auto px-6 py-12">
+        <h1 class="text-3xl font-semibold text-center mb-8">Your Wellness Journal</h1>
+
+        <!-- Journal Writing Section -->
+        <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
+            <h3 class="text-xl font-semibold mb-4">Write Your Reflection</h3>
+            <form id="journalForm">
+                <textarea id="journalEntry" name="journalEntry" rows="6"
+                    class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Write about your day..." required></textarea>
+                <button type="submit"
+                    class="mt-4 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">Save Entry</button>
+            </form>
+        </div>
+
+        <!-- Entry Retrieval Section -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h3 class="text-xl font-semibold mb-4">Browse Past Entries</h3>
+            <div id="entryList" class="space-y-4">
+                <!-- Entries will be dynamically populated -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 text-center">
+        <p>© 2024 HealthPlus. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const journalForm = document.getElementById('journalForm');
+            const entryList = document.getElementById('entryList');
+
+            // Fetch past entries
+            function fetchEntries() {
+                fetch('../actions/save_journal_entry.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        entryList.innerHTML = '';
+                        if (data.success) {
+                            data.entries.forEach(entry => {
+                                const entryDiv = document.createElement('div');
+                                entryDiv.classList.add('flex', 'justify-between', 'items-center', 'border-b', 'pb-2');
+                                entryDiv.innerHTML = `
+                                    <p>${entry.entry_date}: ${entry.entry_text}</p>
+                                    <button class="bg-red-500 text-white px-4 py-1 rounded-md" data-id="${entry.journal_id}">Delete</button>
+                                `;
+                                entryList.appendChild(entryDiv);
+
+                                entryDiv.querySelector('button').addEventListener('click', function () {
+                                    deleteEntry(this.dataset.id);
+                                });
+                            });
+                        } else {
+                            entryList.innerHTML = '<p>No entries found.</p>';
+                        }
+                    });
+            }
+
+            // Save a new journal entry
+            journalForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const journalEntry = document.getElementById('journalEntry').value;
+
+                fetch('../actions/save_journal_entry.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `journalEntry=${encodeURIComponent(journalEntry)}`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        if (data.success) {
+                            journalForm.reset();
+                            fetchEntries();
+                        }
+                    });
+            });
+
+            // Delete an entry
+            function deleteEntry(entryId) {
+                fetch(`../actions/save_journal_entry.php`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `id=${entryId}` // Send the ID in the body
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        if (data.success) {
+                            fetchEntries();
+                        }
+                    });
+            }
+
+            fetchEntries();
+        });
+    </script>
+</body>
+
+</html>

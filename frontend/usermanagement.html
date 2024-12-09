@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Admin User Management - HealthPlus</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+        /* Make the body fill the screen height */
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* This container takes up the remaining space */
+        section.container {
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-900 font-sans">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-500 to-green-400 text-white py-6">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <h1 class="text-2xl font-semibold">Admin Dashboard - User Management</h1>
+            <a href="admin.html" class="bg-white text-blue-500 px-4 py-2 rounded-md hover:bg-gray-100">Back to Dashboard</a>
+        </div>
+    </header>
+
+    <!-- Main Section -->
+    <section class="container mx-auto px-6 py-12">
+        <h2 class="text-xl font-semibold mb-6">Manage Users</h2>
+
+        <!-- User Profiles Table -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <table class="min-w-full border-collapse">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="py-3 px-4 text-left text-gray-700">User Name</th>
+                        <th class="py-3 px-4 text-left text-gray-700">Calorie Goal</th>
+                        <th class="py-3 px-4 text-left text-gray-700">Registered At</th>
+                        <th class="py-3 px-4 text-left text-gray-700">Role</th>
+                        <th class="py-3 px-4 text-left text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable">
+                    <!-- Dynamic rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-6 text-center">
+        <p>© 2024 HealthPlus. All Rights Reserved.</p>
+    </footer>
+
+    <!-- JavaScript for Fetching and Rendering Data -->
+    <script>
+        function fetchUserData() {
+            fetch('../actions/admin-users.php') // Replace with your actual backend endpoint
+                .then(response => response.json())
+                .then(data => {
+                    const userTable = document.getElementById('userTable');
+                    userTable.innerHTML = ''; // Clear any existing rows
+
+                    if (data.error) {
+                        userTable.innerHTML = `<tr><td colspan="5" class="py-3 px-4 text-center text-red-500">${data.error}</td></tr>`;
+                        return;
+                    }
+
+                    data.users.forEach(user => {
+                        const row = `
+                            <tr class="border-t">
+                                <td class="py-3 px-4">${user.name}</td>
+                                <td class="py-3 px-4">${user.calorie_goal || 'Not Set'}</td>
+                                <td class="py-3 px-4">${new Date(user.created_at).toLocaleDateString()}</td>
+                                <td class="py-3 px-4">${user.role}</td>
+                                <td class="py-3 px-4">
+                                    <button class="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600" onclick="deleteAccount(${user.user_id})">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                        userTable.insertAdjacentHTML('beforeend', row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching user data:', error);
+                    const userTable = document.getElementById('userTable');
+                    userTable.innerHTML = `<tr><td colspan="5" class="py-3 px-4 text-center text-red-500">Error loading data</td></tr>`;
+                });
+        }
+
+        function deleteAccount(userId) {
+            if (confirm('Are you sure you want to delete this account?')) {
+                fetch(`../actions/admin-users.php`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `user_id=${encodeURIComponent(userId)}` // Ensure user_id is sent correctly
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('User deleted successfully!');
+                        fetchUserData(); // Refresh the table
+                    } else {
+                        alert(`Error: ${data.error}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting user:', error);
+                    alert('An error occurred. Please try again later.');
+                });
+            }
+        }
+
+
+       
+        // Fetch data on page load
+        window.onload = fetchUserData;
+    </script>
+
+</body>
+
+</html>

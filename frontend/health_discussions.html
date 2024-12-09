@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Discussions</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body {
+            flex: 1;
+        }
+
+        section.container {
+            flex: 1;
+        }
+
+        footer {
+            background-color: #2d3748; /* Tailwind bg-gray-800 */
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-6">
+        <div class="container mx-auto flex justify-between">
+            <h1 class="text-2xl font-bold">Health Discussions</h1>
+            <a href="dashboard.html" class="bg-white text-green-500 px-4 py-2 rounded hover:bg-gray-100">Back to Dashboard</a>
+        </div>
+    </header>
+
+    <!-- Main Section -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Add Topic Section -->
+        <div class="bg-white p-6 rounded shadow mb-8">
+            <h2 class="text-xl font-semibold mb-4">Start a Discussion</h2>
+            <form id="addTopicForm">
+                <input type="text" id="topicTitle" name="title" placeholder="Topic Title" 
+                    class="w-full border border-gray-300 rounded px-4 py-2 mb-4" required>
+                <textarea id="topicContent" name="content" placeholder="What do you want to talk about?" 
+                    class="w-full border border-gray-300 rounded px-4 py-2 mb-4" rows="5" required></textarea>
+                <button type="submit" 
+                    class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Post Topic</button>
+            </form>
+        </div>
+
+        <!-- Topics List -->
+        <div id="topicsContainer" class="space-y-6">
+            <!-- Topics will be dynamically inserted here -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white text-center py-4">
+        <p>© 2024 HealthPlus. All Rights Reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        $(document).ready(function () {
+            // Load topics on page load
+            fetchTopics();
+
+            // Add new topic
+            $('#addTopicForm').on('submit', function (e) {
+                e.preventDefault();
+
+                const formData = {
+                    title: $('#topicTitle').val(),
+                    content: $('#topicContent').val()
+                };
+
+                $.ajax({
+                    url: '../actions/discussions.php?action=add_topic',
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.success);
+                            $('#addTopicForm')[0].reset();
+                            fetchTopics();
+                        } else {
+                            alert(response.error);
+                        }
+                    },
+                    error: function () {
+                        alert('Error adding topic. Please try again.');
+                    }
+                });
+            });
+
+            // Fetch topics from server
+            function fetchTopics() {
+                $.ajax({
+                    url: '../actions/discussions.php?action=fetch_topics',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.topics) {
+                            renderTopics(response.topics);
+                        } else {
+                            $('#topicsContainer').html('<p>No topics found.</p>');
+                        }
+                    },
+                    error: function () {
+                        alert('Error fetching topics. Please try again.');
+                    }
+                });
+            }
+
+            // Render topics in the container
+            function renderTopics(topics) {
+                const container = $('#topicsContainer');
+                container.empty();
+
+                topics.forEach(topic => {
+                    const topicCard = `
+                        <div class="bg-white p-6 rounded shadow">
+                            <h3 class="text-xl font-semibold">${topic.title}</h3>
+                            <p class="text-gray-700 mt-2">${topic.content}</p>
+                            <p class="text-sm text-gray-500 mt-4">Posted on ${topic.created_at}</p>
+                            <button class="mt-4 text-green-500 underline" onclick="viewComments(${topic.topic_id})">View Comments</button>
+                            <div id="commentsContainer-${topic.topic_id}" class="mt-4 hidden"></div>
+                        </div>
+                    `;
+                    container.append(topicCard);
+                });
+            }
+
+            // View comments for a topic
+            window.viewComments = function (topicId) {
+                const commentsContainer = $(`#commentsContainer-${topicId}`);
+                if (commentsContainer.is(':visible')) {
+                    commentsContainer.slideUp();
+                    return;
+                }
+
+                $.ajax({
+                    url: `../actions/discussions.php?action=fetch_comments&topic_id=${topicId}`,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.comments) {
+                            renderComments(topicId, response.comments);
+                        } else {
+                            commentsContainer.html('<p>No comments yet.</p>');
+                        }
+                        commentsContainer.slideDown();
+                    },
+                    error: function () {
+                        alert('Error fetching comments. Please try again.');
+                    }
+                });
+            };
+
+            // Render comments
+            function renderComments(topicId, comments) {
+                const container = $(`#commentsContainer-${topicId}`);
+                container.empty();
+
+                const commentsForm = `
+                    <form class="mt-4" onsubmit="addComment(event, ${topicId})">
+                        <textarea class="w-full border border-gray-300 rounded px-4 py-2 mb-2" rows="3" required placeholder="Add a comment"></textarea>
+                        <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Comment</button>
+                    </form>
+                `;
+
+                container.append(commentsForm);
+
+                comments.forEach(comment => {
+                    const commentCard = `
+                        <div class="bg-gray-100 p-4 rounded mt-4">
+                            <p>${comment.content}</p>
+                            <p class="text-sm text-gray-500 mt-2">Posted on ${comment.created_at}</p>
+                        </div>
+                    `;
+                    container.append(commentCard);
+                });
+            }
+
+            // Add a comment to a topic
+            window.addComment = function (e, topicId) {
+                e.preventDefault();
+
+                const commentContent = $(e.target).find('textarea').val();
+
+                $.ajax({
+                    url: '../actions/discussions.php?action=add_comment',
+                    type: 'POST',
+                    data: { topic_id: topicId, content: commentContent },
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.success);
+                            viewComments(topicId);
+                        } else {
+                            alert(response.error);
+                        }
+                    },
+                    error: function () {
+                        alert('Error adding comment. Please try again.');
+                    }
+                });
+            };
+        });
+    </script>
+</body>
+</html>

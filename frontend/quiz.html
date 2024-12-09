@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Health Quiz - HealthPlus</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        section.container {
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 font-sans">
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-6">
+    <div class="container mx-auto px-6 flex justify-between items-center">
+      <h1 class="text-2xl font-semibold">Test Your Health Knowloedge</h1>
+      <a href="dashboard.html" class="bg-white text-green-500 px-4 py-2 rounded-md hover:bg-gray-100">Back to Dashboard</a>
+    </div>
+  </header>
+    <!-- Health Quiz Section -->
+    <section class="container mx-auto px-6 py-12">
+        <h1 class="text-3xl font-semibold text-center mb-8">Test Your Wellness Knowledge</h1>
+
+        <!-- Quiz Form -->
+        <div id="quizContainer" class="bg-white p-6 rounded-lg shadow-lg">
+            <p class="text-center">Loading quiz...</p>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-center mt-6">
+            <button id="submitQuiz" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition hidden">Submit Quiz</button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="quizResults" class="bg-yellow-50 p-6 mt-8 rounded-lg shadow-lg hidden">
+            <h3 class="text-2xl font-semibold mb-4">Your Results</h3>
+            <p id="resultMessage" class="text-lg"></p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 text-center">
+        <p>© 2024 HealthPlus. All Rights Reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Fetch Quiz Questions
+        function fetchQuiz() {
+            fetch('../actions/quiz.php')
+                .then(response => response.json())
+                .then(data => {
+                    const quizContainer = document.getElementById("quizContainer");
+                    const submitButton = document.getElementById("submitQuiz");
+
+                    if (data.error) {
+                        quizContainer.innerHTML = `<p class="text-red-500">${data.error}</p>`;
+                        return;
+                    }
+
+                    let quizHTML = '';
+                    data.questions.forEach((question, index) => {
+                        quizHTML += `
+                            <div class="mb-6">
+                                <p class="text-lg font-medium mb-4">${index + 1}. ${question.text}</p>
+                                <div>
+                                    ${Object.entries(question.options).map(([key, option]) => `
+                                        <label class="block mb-2">
+                                            <input type="radio" name="q${question.id}" value="${key}" class="mr-2"> ${option}
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    quizContainer.innerHTML = quizHTML;
+                    submitButton.classList.remove("hidden");
+                })
+                .catch(error => {
+                    document.getElementById("quizContainer").innerHTML = `<p class="text-red-500">Error loading quiz: ${error.message}</p>`;
+                });
+        }
+
+        // Submit Quiz and Show Results
+        document.getElementById("submitQuiz").addEventListener("click", () => {
+            const quizResults = document.getElementById("quizResults");
+            const resultMessage = document.getElementById("resultMessage");
+
+            // Gather answers
+            const answers = {};
+            document.querySelectorAll("input[type='radio']:checked").forEach(input => {
+                answers[input.name] = input.value;
+            });
+
+            // Send answers to the server
+            fetch('../actions/quiz.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(answers)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        resultMessage.innerText = data.error;
+                    } else {
+                        resultMessage.innerText = `You got ${data.correct} out of ${data.total} correct!`;
+                    }
+                    quizResults.classList.remove("hidden");
+                })
+                .catch(error => {
+                    resultMessage.innerText = `Error processing results: ${error.message}`;
+                    quizResults.classList.remove("hidden");
+                });
+        });
+
+        // Load the quiz on page load
+        window.onload = fetchQuiz;
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico">
+    <title>Sign Up - HealthPlus</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+</head>
+
+<body class="bg-gray-50 text-gray-900 font-sans">
+
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-green-400 to-blue-500 text-white py-6">
+        <div class="container mx-auto flex justify-between items-center px-6">
+            <div class="text-xl font-semibold">
+                <span class="text-2xl font-bold">HealthPlus</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sign Up Section -->
+    <section class="flex items-center justify-center min-h-screen bg-gray-50">
+        <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+            <h2 class="text-2xl font-semibold text-center mb-6">Create Your Account</h2>
+            
+            <!-- Sign Up Form -->
+            <form onsubmit="return validateForm()" action="../actions/register.php" method="POST">
+                <!-- Full Name Input -->
+                <div class="mb-4">
+                    <label for="fullname" class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input type="text" id="fullname" name="fullname" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                </div>
+                
+                <!-- Email Input -->
+                <div class="mb-4">
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                </div>
+
+                <!-- Password Input -->
+                <div class="mb-4">
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                </div>
+
+                <!-- Confirm Password Input -->
+                <div class="mb-6">
+                    <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                </div>
+
+                <!-- Terms and Conditions Checkbox -->
+                <div class="mb-6 flex items-center">
+                    <input type="checkbox" id="terms" name="terms" class="mr-2 rounded" required>
+                    <label for="terms" class="text-sm">I agree to the <a href="#terms" class="text-green-500 hover:text-green-700">Terms and Conditions</a>.</label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 transition">Sign Up</button>
+            </form>
+            
+            <!-- Login Link -->
+            <p class="mt-6 text-center text-sm">Already have an account? <a href="login.html" class="text-green-500 hover:text-green-700">Log In</a></p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 text-center">
+        <p>© 2024 HealthPlus. All Rights Reserved.</p>
+    </footer>
+    <script>
+        function validateForm() {
+            const fullname = document.getElementById("fullname").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+            
+            const fullnameError = document.getElementById("fullnameError");
+            const emailError = document.getElementById("emailError");
+            const passwordError = document.getElementById("passwordError");
+            const confirmPasswordError = document.getElementById("confirmPasswordError");
+
+            let valid = true;
+
+            // Reset error messages
+            fullnameError.textContent = "";
+            emailError.textContent = "";
+            passwordError.textContent = "";
+            confirmPasswordError.textContent = "";
+
+            // First Name validation
+            if (!fullname) {
+                fullnameError.textContent = "Full Name is required.";
+                valid = false;
+            }
+
+            // Email validation
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!email) {
+                emailError.textContent = "Email is required.";
+                valid = false;
+            } else if (!emailPattern.test(email)) {
+                emailError.textContent = "Please enter a valid email.";
+                valid = false;
+            }
+
+            // Password validation
+            const passwordPattern = /^(?=.*[A-Z])(?=.*\d{3,})(?=.*[!@#$%^&*]).{8,}$/;
+            if (!password) {
+                passwordError.textContent = "Password is required.";
+                valid = false;
+            } else if (!passwordPattern.test(password)) {
+                passwordError.textContent = 
+                    "Password must be at least 8 characters, include an uppercase letter, three digits, and a special character.";
+                valid = false;
+            }
+
+            // Confirm Password validation
+            if (!confirmPassword) {
+                confirmPasswordError.textContent = "Please confirm your password.";
+                valid = false;
+            } else if (password !== confirmPassword) {
+                confirmPasswordError.textContent = "Passwords do not match.";
+                valid = false;
+            }
+
+            return valid;
+        }
+    </script>
+</body>
+
+</html>
