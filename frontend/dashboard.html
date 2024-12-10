@@ -97,6 +97,13 @@
 
                 const data = await response.json();
 
+                // Check if a redirect is necessary
+                if (data.redirect) {
+                    window.location.href = data.redirect;  // Redirect the user
+                    return;
+                }
+
+                // If no redirect, continue with normal dashboard updates
                 if (data.error) {
                     throw new Error(data.error);   
                 }
@@ -147,6 +154,7 @@
 
         // Call the function when the page loads
         document.addEventListener('DOMContentLoaded', fetchDashboardData);
+
     </script>
 </body>
 

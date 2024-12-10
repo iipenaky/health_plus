@@ -68,74 +68,93 @@
     </footer>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const journalForm = document.getElementById('journalForm');
-            const entryList = document.getElementById('entryList');
+  document.addEventListener("DOMContentLoaded", function () {
+    const journalForm = document.getElementById('journalForm');
+    const entryList = document.getElementById('entryList');
 
-            // Fetch past entries
-            function fetchEntries() {
-                fetch('../actions/save_journal_entry.php')
-                    .then(response => response.json())
-                    .then(data => {
-                        entryList.innerHTML = '';
-                        if (data.success) {
-                            data.entries.forEach(entry => {
-                                const entryDiv = document.createElement('div');
-                                entryDiv.classList.add('flex', 'justify-between', 'items-center', 'border-b', 'pb-2');
-                                entryDiv.innerHTML = `
-                                    <p>${entry.entry_date}: ${entry.entry_text}</p>
-                                    <button class="bg-red-500 text-white px-4 py-1 rounded-md" data-id="${entry.journal_id}">Delete</button>
-                                `;
-                                entryList.appendChild(entryDiv);
+    // Fetch past entries
+    function fetchEntries() {
+        fetch('../actions/save_journal_entry.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.redirect) {
+                    // If user is not logged in, redirect to login page
+                    window.location.href = data.redirect;
+                    return;
+                }
 
-                                entryDiv.querySelector('button').addEventListener('click', function () {
-                                    deleteEntry(this.dataset.id);
-                                });
-                            });
-                        } else {
-                            entryList.innerHTML = '<p>No entries found.</p>';
-                        }
+                entryList.innerHTML = '';
+                if (data.success) {
+                    data.entries.forEach(entry => {
+                        const entryDiv = document.createElement('div');
+                        entryDiv.classList.add('flex', 'justify-between', 'items-center', 'border-b', 'pb-2');
+                        entryDiv.innerHTML = `
+                            <p>${entry.entry_date}: ${entry.entry_text}</p>
+                            <button class="bg-red-500 text-white px-4 py-1 rounded-md" data-id="${entry.journal_id}">Delete</button>
+                        `;
+                        entryList.appendChild(entryDiv);
+
+                        entryDiv.querySelector('button').addEventListener('click', function () {
+                            deleteEntry(this.dataset.id);
+                        });
                     });
-            }
-
-            // Save a new journal entry
-            journalForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const journalEntry = document.getElementById('journalEntry').value;
-
-                fetch('../actions/save_journal_entry.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `journalEntry=${encodeURIComponent(journalEntry)}`
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        alert(data.message);
-                        if (data.success) {
-                            journalForm.reset();
-                            fetchEntries();
-                        }
-                    });
+                } else {
+                    entryList.innerHTML = '<p>No entries found.</p>';
+                }
             });
+    }
 
-            // Delete an entry
-            function deleteEntry(entryId) {
-                fetch(`../actions/save_journal_entry.php`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `id=${entryId}` // Send the ID in the body
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        alert(data.message);
-                        if (data.success) {
-                            fetchEntries();
-                        }
-                    });
-            }
+    // Save a new journal entry
+    journalForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const journalEntry = document.getElementById('journalEntry').value;
 
-            fetchEntries();
-        });
+        fetch('../actions/save_journal_entry.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `journalEntry=${encodeURIComponent(journalEntry)}`
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.redirect) {
+                    // If user is not logged in, redirect to login page
+                    window.location.href = data.redirect;
+                    return;
+                }
+
+                alert(data.message);
+                if (data.success) {
+                    journalForm.reset();
+                    fetchEntries();
+                }
+            });
+    });
+
+    // Delete an entry
+    function deleteEntry(entryId) {
+        fetch(`../actions/save_journal_entry.php`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${entryId}` // Send the ID in the body
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.redirect) {
+                    // If user is not logged in, redirect to login page
+                    window.location.href = data.redirect;
+                    return;
+                }
+
+                alert(data.message);
+                if (data.success) {
+                    fetchEntries();
+                }
+            });
+    }
+
+    fetchEntries();
+});
+
     </script>
 </body>
 

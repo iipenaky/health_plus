@@ -1,17 +1,14 @@
 <?php
 header('Content-Type: application/json');
-// Start the session
 session_start();
 
-// Include the database connection file
-include '../db/db.php';
-
-// Check if the user is logged in and is a user
+// Check if the user is logged in
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
-    header('Location: ../frontend/index.html'); // Redirect to index page
+    // Return a JSON response indicating the user is not authorized
+    echo json_encode(['redirect' => '../frontend/login.html']);
     exit();
 }
-
+include '../db/db.php';
 // Assuming user ID is 1 for this example
 $user_id = $_SESSION['user_id'];
 

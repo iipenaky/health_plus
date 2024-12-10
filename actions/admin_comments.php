@@ -6,14 +6,16 @@ ini_set('display_errors', 1);
 // Start the session
 session_start();
 
+// Check if the user is logged in and is an admin
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    // If not logged in or not an admin, send a rerect response to the login page
+    echo json_encode(['redirect' => '../frontend/login.html']);
+    exit();
+}
+
 // Include the database connection file
 include '../db/db.php';
 
-// Check if the user is logged in and is an admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header('Location: ../frontend/index.html'); // Redirect to index page
-    exit();
-}
 
 // Check if the connection was successful
 if ($conn->connect_error) {
@@ -45,7 +47,7 @@ function fetchAllComments($conn)
     $sql = "SELECT c.comment_id, c.content, c.created_at, u.name, t.title AS topic_title 
             FROM Comments c
             JOIN HealthUsers u ON c.user_id = u.user_id
-            JOIN health_topics t ON c.topic_id = t.topic_id
+            JOIN  Health_Topics t ON c.topic_id = t.topic_id
             ORDER BY c.created_at DESC";
     $result = $conn->query($sql);
 

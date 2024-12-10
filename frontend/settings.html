@@ -110,54 +110,63 @@
             }
         }
 
-        // Handle the Update Information form submission via AJAX
-        $('#update-info-form').submit(function(event) {
-            event.preventDefault();
-            var formData = $(this).serialize();
-            $.ajax({
-                url: '../actions/update_info.php',
-                type: 'POST',
-                data: formData,
-                success: function(response) {
-                    var res = JSON.parse(response);
-                    alert(res.message); // Handle the response
-                }
-            });
-        });
-
-        // Handle the Change Password form submission via AJAX
-        $('#change-password-form').submit(function(event) {
-            event.preventDefault();
-            var formData = $(this).serialize();
-            $.ajax({
-                url: '../actions/change_password.php',
-                type: 'POST',
-                data: formData,
-                success: function(response) {
-                    var res = JSON.parse(response);
-                    alert(res.message); // Handle the response
-                }
-            });
-
-        });
-
-        function fetchProfileData() {
-            fetch('../actions/view_profile.php', {
-                method: 'GET'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    document.getElementById('profile-name').textContent = data.name;
-                    document.getElementById('profile-email').textContent = data.email;
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(error => {
-                alert('Error fetching profile data.');
-            });
+// Handle the Update Information form submission via AJAX
+$('#update-info-form').submit(function(event) {
+    event.preventDefault();
+    var formData = $(this).serialize();
+    $.ajax({
+        url: '../actions/update_info.php', // Backend endpoint
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            var res = JSON.parse(response);
+            if (res.redirect) {
+                window.location.href = res.redirect; // Redirect if not logged in
+            } else {
+                alert(res.message); // Handle the response
+            }
         }
+    });
+});
+
+// Handle the Change Password form submission via AJAX
+$('#change-password-form').submit(function(event) {
+    event.preventDefault();
+    var formData = $(this).serialize();
+    $.ajax({
+        url: '../actions/change_password.php', // Backend endpoint
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            var res = JSON.parse(response);
+            if (res.redirect) {
+                window.location.href = res.redirect; // Redirect if not logged in
+            } else {
+                alert(res.message); // Handle the response
+            }
+        }
+    });
+});
+
+// Fetch profile data when the user clicks "View Profile"
+function fetchProfileData() {
+    fetch('../actions/view_profile.php', { method: 'GET' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.redirect) {
+                window.location.href = data.redirect; // Redirect if not logged in
+            } else if (data.status === 'success') {
+                document.getElementById('profile-name').textContent = data.name;
+                document.getElementById('profile-email').textContent = data.email;
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error fetching profile data.');
+        });
+}
+
     </script>
 </body>
 

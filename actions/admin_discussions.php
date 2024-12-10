@@ -3,17 +3,17 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Start the session
 session_start();
-
-// Include the database connection file
-include '../db/db.php';
 
 // Check if the user is logged in and is an admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header('Location: ../frontend/index.html'); // Redirect to index page
+    // If not logged in or not an admin, send a redirect response to the login page
+    echo json_encode(['redirect' => '../frontend/login.html']);
     exit();
 }
+
+// Include the database connection file
+include '../db/db.php';
 
 // Check if the connection was successful
 if ($conn->connect_error) {
@@ -43,7 +43,7 @@ switch ($action) {
 function fetchAllTopics($conn)
 {
     $sql = "SELECT t.topic_id, t.title, t.content, t.created_at, u.name 
-            FROM health_topics t 
+            FROM  Health_Topics t 
             JOIN HealthUsers u ON t.user_id = u.user_id 
             ORDER BY t.created_at DESC";
     $result = $conn->query($sql);
@@ -69,7 +69,7 @@ function deleteTopic($conn)
 
     $topic_id = (int) $_POST['topic_id'];
 
-    $sql = "DELETE FROM health_topics WHERE topic_id = ?";
+    $sql = "DELETE FROM  Health_Topics WHERE topic_id = ?";
     $stmt = $conn->prepare($sql);
 
     if ($stmt) {

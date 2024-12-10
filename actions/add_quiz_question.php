@@ -2,15 +2,14 @@
 // Start the session
 session_start();
 
-// Include the database connection file
-include '../db/db.php';
-
-// Check if the user is logged in and is an admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header('Location: ../frontend/index.html'); // Redirect to index page
+// Check if the user is logged in
+if (!isset($_SESSION['admin_id'])) {
+    echo json_encode(['redirect' => '../frontend/login.html']);
     exit();
 }
 
+// Include database connection
+include '../db/db.php';
 $question_text = $_POST['question_text'];
 $options = json_encode([
     'A' => $_POST['option_a'],

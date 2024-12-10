@@ -67,6 +67,12 @@
             fetch('../actions/quiz.php')
                 .then(response => response.json())
                 .then(data => {
+                    if (data.redirect) {
+                        // If user is not logged in, redirect them to login
+                        window.location.href = data.redirect;
+                        return;
+                    }
+
                     const quizContainer = document.getElementById("quizContainer");
                     const submitButton = document.getElementById("submitQuiz");
 
@@ -118,22 +124,25 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.error) {
-                        resultMessage.innerText = data.error;
+                    if (data.redirect) {
+                        // Redirect if user is not logged in
+                        window.location.href = data.redirect;
                     } else {
-                        resultMessage.innerText = `You got ${data.correct} out of ${data.total} correct!`;
+                        if (data.error) {
+                            resultMessage.innerText = data.error;
+                        } else {
+                            resultMessage.innerText = `You got ${data.correct} out of ${data.total} correct!`;
+                        }
+                        quizResults.classList.remove("hidden");
                     }
-                    quizResults.classList.remove("hidden");
                 })
                 .catch(error => {
                     resultMessage.innerText = `Error processing results: ${error.message}`;
                     quizResults.classList.remove("hidden");
                 });
         });
-
-        // Load the quiz on page load
-        window.onload = fetchQuiz;
-    </script>
+        document.addEventListener('DOMContentLoaded', fetchQuiz);
+   </script>
 
 </body>
 

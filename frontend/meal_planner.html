@@ -74,84 +74,100 @@
 
     <!-- AJAX Script -->
     <script>
-        $(document).ready(function () {
-            const userId = 1; // Mocked user ID for example purposes
-
-            function loadGoal() {
-                $.ajax({
-                    url: '../actions/fetch_calorie_goal.php',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (response) {
-                        $('#calorieGoal').text(response.calorie_goal || '2000');
-                    }
-                });
+  $(document).ready(function () {
+    // Function to load the user's calorie goal
+    function loadGoal() {
+        $.ajax({
+            url: '../actions/fetch_calorie_goal.php',
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                if (response.redirect) {
+                    // If user is not logged in, redirect them to login
+                    window.location.href = response.redirect;
+                    return;
+                }
+                $('#calorieGoal').text(response.calorie_goal || '2000');
             }
+        });
+    }
 
-            function loadMeals() {
-                $.ajax({
-                    url: '../actions/fetch_meals.php',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (response) {
-                        let mealsHTML = '';
-                        let totalCalories = 0;
-                        if (response.meals.length > 0) {
-                            response.meals.forEach(meal => {
-                                totalCalories += meal.calories;
-                                mealsHTML += `<div>${meal.meal_name} - ${meal.calories} kcal</div>`;
-                            });
-                            $('#mealsList').html(mealsHTML);
-                            checkGoal(totalCalories, response.calorie_goal);
-                        } else {
-                            $('#mealsList').html('<p>No meals found for today.</p>');
-                        }
-                    }
-                });
-            }
-
-            function checkGoal(totalCalories, goal) {
-                const feedback = $('#feedback');
-                feedback.removeClass('text-green-600 text-red-600');
-                if (totalCalories > goal) {
-                    feedback.addClass('text-red-600').text(`You have exceeded your calorie goal by ${totalCalories - goal} kcal!`);
+    // Function to load today's meals
+    function loadMeals() {
+        $.ajax({
+            url: '../actions/fetch_meals.php',
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                if (response.redirect) {
+                    // If user is not logged in, redirect them to login
+                    window.location.href = response.redirect;
+                    return;
+                }
+                
+                let mealsHTML = '';
+                let totalCalories = 0;
+                if (response.meals.length > 0) {
+                    response.meals.forEach(meal => {
+                        totalCalories += meal.calories;
+                        mealsHTML += `<div>${meal.meal_name} - ${meal.calories} kcal</div>`;
+                    });
+                    $('#mealsList').html(mealsHTML);
+                    checkGoal(totalCalories, response.calorie_goal);
                 } else {
-                    feedback.addClass('text-green-600').text(`You are within your calorie goal. You have ${goal - totalCalories} kcal left.`);
+                    $('#mealsList').html('<p>No meals found for today.</p>');
                 }
             }
-
-            $('#mealForm').on('submit', function (e) {
-                e.preventDefault();
-                const formData = $(this).serialize();
-                $.ajax({
-                    url: '../actions/add_meal.php',
-                    type: 'POST',
-                    data: formData,
-                    dataType: 'json',
-                    success: function () {
-                        loadMeals();
-                        $('#mealForm')[0].reset();
-                    }
-                });
-            });
-
-            $('#updateGoal').on('click', function () {
-                const newGoal = $('#goal').val();
-                $.ajax({
-                    url: '../actions/update_calorie_goal.php',
-                    type: 'POST',
-                    data: { calorie_goal: newGoal },
-                    dataType: 'json',
-                    success: function () {
-                        loadGoal();
-                        loadMeals();
-                    }
-                });
-            });
-
-            loadGoal();
-            loadMeals();
         });
+    }
+
+    // Function to check if the user has exceeded their calorie goal
+    function checkGoal(totalCalories, goal) {
+        const feedback = $('#feedback');
+        feedback.removeClass('text-green-600 text-red-600');
+        if (totalCalories > goal) {
+            feedback.addClass('text-red-600').text(`You have exceeded your calorie goal by ${totalCalories - goal} kcal!`);
+        } else {
+            feedback.addClass('text-green-600').text(`You are within your calorie goal. You have ${goal - totalCalories} kcal left.`);
+        }
+    }
+
+    // Handle form submission to add a meal
+    $('#mealForm').on('submit', function (e) {
+        e.preventDefault();
+        const formData = $(this).serialize();
+        $.ajax({
+            url: '../actions/add_meal.php',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function () {
+                loadMeals();
+                $('#mealForm')[0].reset();
+            }
+        });
+    });
+
+    // Handle calorie goal update
+    $('#updateGoal').on('click', function () {
+        const newGoal = $('#goal').val();
+        $.ajax({
+            url: '../actions/update_calorie_goal.php',
+            type: 'POST',
+            data: { calorie_goal: newGoal },
+            dataType: 'json',
+            success: function () {
+                loadGoal();
+                loadMeals();
+            }
+        });
+    });
+
+    // Initial load of calorie goal and meals
+    loadGoal();
+    loadMeals();
+});
+
     </script>
 </body>
 </html>

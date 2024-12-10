@@ -73,6 +73,12 @@ async function fetchDashboardData() {
         const response = await fetch('../actions/admin_dashboard.php');
         const data = await response.json();
 
+        if (data.redirect) {
+            // If the user is not logged in or is not an admin, redirect to login page
+            window.location.href = data.redirect;
+            return;
+        }
+
         // Update the active users section
         document.getElementById('active-users').innerText = data.activeUsers;
         document.getElementById('common-goal').innerText = data.commonGoal;
@@ -109,6 +115,7 @@ async function fetchDashboardData() {
 
 // Fetch data when the page loads
 window.onload = fetchDashboardData;
+
 
     </script>
 </body>

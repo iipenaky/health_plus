@@ -93,11 +93,11 @@
       const routineDisplay = document.getElementById('routine-display');
       const feedbackSection = document.getElementById('feedback-section');
       const feedbackMessage = document.getElementById('feedback-message');
-  
+
       // Reset previous displays
       routineDisplay.innerHTML = '';
       feedbackSection.classList.add('hidden');
-  
+
       try {
         // Send POST request to generate routine
         const response = await fetch('../actions/get_routines.php', {
@@ -108,16 +108,22 @@
           },
           body: `goal=${goal}&experience=${experience}`,
         });
-  
+
         const data = await response.json();
-  
+
+        if (data.redirect) {
+          // If user is not logged in, redirect to login page
+          window.location.href = data.redirect;
+          return;
+        }
+
         if (data.error) {
           // Show error feedback
           feedbackMessage.textContent = data.error;
           feedbackSection.classList.remove('hidden');
           return;
         }
-  
+
         // Create routine overview card
         const overviewCard = `
           <div class="routine-overview p-4 bg-green-100 rounded-lg shadow-md">
@@ -146,19 +152,20 @@
             </ul>
           </div>
         `;
-  
+
         routineDisplay.innerHTML = overviewCard;
-  
+
         // Show success feedback
         feedbackMessage.textContent = `Successfully generated ${goal} routine for ${experience} level!`;
         feedbackSection.classList.remove('hidden');
-  
+
       } catch (error) {
         console.error('Failed to generate routine:', error);
         feedbackMessage.textContent = 'An unexpected error occurred. Please try again.';
         feedbackSection.classList.remove('hidden');
       }
     });
+
   </script>
 </body>
 </html>

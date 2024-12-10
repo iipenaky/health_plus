@@ -1,19 +1,18 @@
 <?php
-// Include the database configuration file to connect to the database
-// Start the session
 session_start();
+
+// Check if the user is logged in and is an admin
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    // If not logged in or not an admin, send a redirect response to the login page
+    echo json_encode(['redirect' => '../frontend/login.html']);
+    exit();
+}
 
 // Include the database connection file
 include '../db/db.php';
 
-// Check if the user is logged in and is an admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header('Location: ../frontend/index.html'); // Redirect to index page
-    exit();
-
-
 // Fetch total active users
-$activeUsersQuery = "SELECT COUNT(*) AS active_users FROM Users";
+$activeUsersQuery = "SELECT COUNT(*) AS active_users FROM HealthUsers";
 $activeUsersResult = $conn->query($activeUsersQuery);
 $activeUsers = $activeUsersResult->fetch_assoc()['active_users'];
 

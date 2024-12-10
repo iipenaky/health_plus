@@ -1,19 +1,19 @@
 <?php
 header('Content-Type: application/json');
-// Start the session
 session_start();
 
-// Include the database connection file
+// Include the database connection
 include '../db/db.php';
 
 // Check if the user is logged in and is an admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header('Location: ../frontend/index.html'); // Redirect to index page
+    // Return a JSON response indicating the user is not authorized
+    echo json_encode(['redirect' => '../frontend/index.html']);
     exit();
 }
 
 // Check if the logged-in user is an admin
-$admin_check_query = "SELECT role FROM HealthUsers  WHERE user_id = ?";
+$admin_check_query = "SELECT role FROM  HealthUsers   WHERE user_id = ?";
 $stmt = $conn->prepare($admin_check_query);
 $stmt->bind_param('i', $_SESSION['user_id']);
 $stmt->execute();
@@ -29,8 +29,8 @@ if ($result->num_rows === 0 || ($row = $result->fetch_assoc()) && $row['role'] !
 $request_method = $_SERVER['REQUEST_METHOD'];
 
 if ($request_method === 'GET') {
-    // Fetch all HealthUsers  for the admin dashboard
-    $query = "SELECT user_id, name, calorie_goal, created_at, role FROM HealthUsers ";
+    // Fetch all  HealthUsers   for the admin dashboard
+    $query = "SELECT user_id, name, calorie_goal, created_at, role FROM  HealthUsers  ";
     $result = $conn->query($query);
 
     if ($result && $result->num_rows > 0) {
@@ -40,7 +40,7 @@ if ($request_method === 'GET') {
         }
         echo json_encode(['users' => $users]);
     } else {
-        echo json_encode(['error' => 'No HealthUsers  found']);
+        echo json_encode(['error' => 'No  HealthUsers   found']);
     }
 } elseif ($request_method === 'DELETE') {
     // Delete a user by ID
@@ -60,7 +60,7 @@ if ($request_method === 'GET') {
     }
 
     // Perform the deletion
-    $query = "DELETE FROM HealthUsers  WHERE user_id = ?";
+    $query = "DELETE FROM HealthUsers WHERE user_id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param('i', $user_id);
 

@@ -1,17 +1,14 @@
 <?php
-include '../db/db.php';
-// Start the session
-// Start the session
 session_start();
 
-// Include the database connection file
-include '../db/db.php';
-
-// Check if the user is logged in and is a user
+// Check if the user is logged in
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
-    header('Location: ../frontend/index.html'); // Redirect to index page
+    // Return a JSON response indicating the user is not authorized
+    echo json_encode(['redirect' => '../frontend/login.html']);
     exit();
 }
+include '../db/db.php';
+
 
 $user_id = $_SESSION['user_id'];
 
@@ -32,7 +29,7 @@ if ($newPassword !== $confirmPassword) {
 }
 
 // Get the current password hash from the database
-$stmt = $conn->prepare("SELECT password_hash FROM HealthUsers  WHERE user_id = ?");
+$stmt = $conn->prepare("SELECT password_hash FROM  HealthUsers   WHERE user_id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $stmt->store_result();
@@ -55,7 +52,7 @@ if (!password_verify($currentPassword, $password_hash)) {
 $newPasswordHash = password_hash($newPassword, PASSWORD_BCRYPT);
 
 // Update the password in the database
-$stmt = $conn->prepare("UPDATE HealthUsers  SET password_hash = ? WHERE user_id = ?");
+$stmt = $conn->prepare("UPDATE HealthUsers SET password_hash = ? WHERE user_id = ?");
 $stmt->bind_param("si", $newPasswordHash, $user_id);
 
 if ($stmt->execute()) {

@@ -31,7 +31,7 @@ if (!filter_var($entry_id, FILTER_VALIDATE_INT)) {
 }
 
 // Prepare the delete query
-$query = "DELETE FROM journal_entries WHERE user_id = ? AND journal_id = ?";
+$query = "DELETE FROM Journal_Entries WHERE user_id = ? AND journal_id = ?";
 
 $stmt = $conn->prepare($query);
 $stmt->bind_param("ii", $user_id, $entry_id);

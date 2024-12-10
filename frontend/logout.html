@@ -26,30 +26,30 @@
 
     <!-- JavaScript -->
     <script>
-        // Go back to the previous page
-        function goBack() {
-            history.back();
+// Handle the log out with AJAX
+document.getElementById('logoutBtn').addEventListener('click', function () {
+    // Send AJAX request to log out
+    fetch('../actions/logout.php', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.redirect) {
+            // If user is not logged in, redirect to login page
+            window.location.href = data.redirect;
+        } else if (data.success) {
+            // Redirect to the homepage after successful logout
+            window.location.href = "../frontend/index.html";
+        } else {
+            alert('Logout failed. Please try again.');
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('There was an error logging out. Please try again.');
+    });
+});
 
-        // Handle the log out with AJAX
-        document.getElementById('logoutBtn').addEventListener('click', function () {
-            // Send AJAX request to log out
-            fetch('../actions/logout.php', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = "../frontend/index.html"; // Redirect after successful logout
-                } else {
-                    alert('Logout failed. Please try again.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('There was an error logging out. Please try again.');
-            });
-        });
     </script>
 
 </body>

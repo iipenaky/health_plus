@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Prepare a statement to check if the email exists in the database
-    $stmt = $conn->prepare('SELECT `user_id`, `email`, `password_hash`, `role` FROM  `users` WHERE `email` = ?');
+    $stmt = $conn->prepare('SELECT `user_id`, `email`, `password_hash`, `role` FROM  `HealthUsers` WHERE `email` = ?');
     $stmt->bind_param('s', $email); // Bind the email parameter to the query
     $stmt->execute(); // Execute the query
     $results = $stmt->get_result(); // Get the result of the query

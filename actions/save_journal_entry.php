@@ -1,17 +1,14 @@
 <?php
 
-// Start the session
 session_start();
 
-// Include the database connection file
-include '../db/db.php';
-
-// Check if the user is logged in and is a user
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
-    header('Location: ../frontend/index.html'); // Redirect to index page
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    // If not logged in, send a redirect response to the login page
+    echo json_encode(['redirect' => '../frontend/login.html']);
     exit();
 }
-
+include '../db/db.php';
 
 header('Content-Type: application/json');
 header("Access-Control-Allow-Origin: *");
@@ -33,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $stmt = $conn->prepare("INSERT INTO journal_entries (user_id, entry_date, entry_text) VALUES (?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO Journal_Entries (user_id, entry_date, entry_text) VALUES (?, ?, ?)");
     $stmt->bind_param("iss", $user_id, $entry_date, $entry_text);
 
     if ($stmt->execute()) {
@@ -47,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Handle fetching journal entries
-    $stmt = $conn->prepare("SELECT * FROM journal_entries WHERE user_id = ?");
+    $stmt = $conn->prepare("SELECT * FROM Journal_Entries WHERE user_id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -76,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Prepare and execute the DELETE query
-    $stmt = $conn->prepare("DELETE FROM journal_entries WHERE user_id = ? AND journal_id = ?");
+    $stmt = $conn->prepare("DELETE FROM Journal_Entries WHERE user_id = ? AND journal_id = ?");
     $stmt->bind_param("ii", $user_id, $entry_id);
 
     if ($stmt->execute()) {
