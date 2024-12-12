@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("../assets/images/somesome.jpg");
+            background-size: cover;
+            background-position: center;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: black;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+        }
+        header img.logo {
+            height: 50px;
+            width: 50px;
+        }
+        .big-form {
+            width: 40%; 
+            margin: auto; 
+            padding: 30px; 
+            font-size: 20px; 
+            background-color: rgba(255, 255, 255, 0.778);
+            border-radius: 15px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            border: none; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+        }
+        input[type="submit"] {
+            width: 100%; 
+            background-color: rgba(0, 0, 0, 0.941);
+            padding: 14px; 
+            margin: 10px 0; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 18px; 
+            color: white;
+        }
+        input[type="submit"]:hover {
+            background-color: rgb(255, 47, 47); 
+            color: black;
+        }
+        h1, h2 {
+            text-align: center; 
+            color: black;
+        }
+        .error-message {
+            color: red;
+            font-size: 10px;
+            display: block;
+            margin-top: 5px;
+        }
+        @media (min-width: 430px) and (max-width: 779px) {
+            .big-form {
+                width: 60%; 
+                padding: 20px; 
+                font-size: 18px;
+                min-height: 300px;
+                max-height: 700px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="../assets/images/Untitled design.png" alt="Logo" class="logo">
+    </header>        
+
+    <form class="big-form" id="registerForm" onsubmit="return validateForm()" action="../actions/register.php" method="post">
+        <h2>Sign Up for An Account</h2>
+
+        <!-- First Name field -->
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" name="firstname" placeholder="Enter your first name">
+        <span id="firstNameError" class="error-message"></span>
+
+        <!-- Last Name field -->
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" name="lastname" placeholder="Enter your last name">
+        <span id="lastNameError" class="error-message"></span>
+
+        <!-- Email field -->
+        <label for="email">Email</label>
+        <input type="text" id="email" name="email" placeholder="Enter your email">
+        <span id="emailError" class="error-message"></span>
+
+        <!-- Password field -->
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Create a password">
+        <span id="passwordError" class="error-message"></span>
+
+        <!-- Password Confirmation field -->
+        <label for="confirmPassword">Confirm Password</label>
+        <input type="password" id="confirmPassword" name="confirm_password" placeholder="Confirm your password">
+        <span id="confirmPasswordError" class="error-message"></span>
+
+        <input type="submit" value="Sign Up">
+
+        <p><a href="login.html">Already have an account? Login</a></p>
+    </form>
+
+    <script>
+        function validateForm() {
+            const firstName = document.getElementById("firstName").value.trim();
+            const lastName = document.getElementById("lastName").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+            
+            const firstNameError = document.getElementById("firstNameError");
+            const lastNameError = document.getElementById("lastNameError");
+            const emailError = document.getElementById("emailError");
+            const passwordError = document.getElementById("passwordError");
+            const confirmPasswordError = document.getElementById("confirmPasswordError");
+
+            let valid = true;
+
+            // Reset error messages
+            firstNameError.textContent = "";
+            lastNameError.textContent = "";
+            emailError.textContent = "";
+            passwordError.textContent = "";
+            confirmPasswordError.textContent = "";
+
+            // First Name validation
+            if (!firstName) {
+                firstNameError.textContent = "First Name is required.";
+                valid = false;
+            }
+
+            // Last Name validation
+            if (!lastName) {
+                lastNameError.textContent = "Last Name is required.";
+                valid = false;
+            }
+
+            // Email validation
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!email) {
+                emailError.textContent = "Email is required.";
+                valid = false;
+            } else if (!emailPattern.test(email)) {
+                emailError.textContent = "Please enter a valid email.";
+                valid = false;
+            }
+
+            // Password validation
+            const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*_])[A-Za-z\d!@#$%^&*_]{8,}$/;
+
+            if (!password) {
+                passwordError.textContent = "Password is required.";
+                valid = false;
+            } else if (!passwordPattern.test(password)) {
+                passwordError.textContent = 
+                    "Password must be at least 8 characters long and include an uppercase letter, a digit, and a special character.";
+                valid = false;
+            }
+
+            // Confirm Password validation
+            if (!confirmPassword) {
+                confirmPasswordError.textContent = "Please confirm your password.";
+                valid = false;
+            } else if (password !== confirmPassword) {
+                confirmPasswordError.textContent = "Passwords do not match.";
+                valid = false;
+            }
+
+            return valid;
+        }
+    </script>
+</body>
+</html>

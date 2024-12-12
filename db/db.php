@@ -1,9 +1,9 @@
 <?php
 // Define server details needed to connect to the database
 $servername = 'localhost'; // The server where the database is hosted
-$username = 'peniel.ansah';      // The username to access the database
-$password = 'penaky_Justice04';  
-$dbname = 'webtech_fall2024_peniel_ansah';    
+$username = 'root';      // The username to access the database
+$password = '';  
+$dbname = 'health_plus';    //pass      
 // $dbname = 'webtech_fall2024_peniel_ansah'; 
 
 // Attempt to connect to the database using the provided details

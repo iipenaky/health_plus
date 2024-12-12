@@ -10,7 +10,6 @@
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         /* Make the body fill the screen height */
         html, body {
@@ -23,6 +22,10 @@
         /* This container takes up the remaining space */
         section.container {
             flex: 1;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
@@ -40,12 +43,10 @@
     <section class="container mx-auto px-6 py-12">
         <h1 class="text-3xl font-semibold text-center mb-8">Track Your Health Activities</h1>
 
-        <div id="responseMessage" class="text-center text-sm text-green-600 hidden"></div>
-
         <!-- Combined Health Tracking Form -->
         <div class="bg-white p-6 rounded-lg shadow-lg">
             <h3 class="text-xl font-semibold mb-4">Health Tracker</h3>
-            <form id="healthForm">
+            <form id="healthForm" action="../actions/tracking.php" method="POST">
                 <!-- Steps Tracker -->
                 <label for="steps" class="block text-sm text-gray-700 mb-2">Steps Taken Today</label>
                 <input type="number" id="steps" name="steps" placeholder="Enter steps" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none mb-4" required>
@@ -58,13 +59,15 @@
                 <label for="sleep" class="block text-sm text-gray-700 mb-2">Sleep Duration (hours)</label>
                 <input type="number" id="sleep" name="sleep" step="0.1" placeholder="Enter hours" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none mb-4" required>
 
-                <!-- Mood Tracker (Replacing Calories Tracker) -->
+                <!-- Mood Tracker -->
                 <label for="mood" class="block text-sm text-gray-700 mb-2">Mood</label>
                 <input type="text" id="mood" name="mood" placeholder="Enter mood (e.g., Happy, Sad)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none mb-4" required>
 
                 <!-- Exercise Tracker -->
                 <label for="exercise" class="block text-sm text-gray-700 mb-2">Exercise Duration (minutes)</label>
                 <input type="number" id="exercise" name="exercise" placeholder="Enter minutes" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none mb-4" required>
+
+                <div id="validationMessage" class="hidden text-red-600 text-center text-sm mb-4"></div>
 
                 <button type="submit" class="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 mt-4">Save All</button>
             </form>
@@ -76,49 +79,41 @@
         <p>© 2024 HealthPlus. All Rights Reserved.</p>
     </footer>
 
-    <!-- AJAX Script -->
+    <!-- JavaScript for Validation -->
     <script>
-    $(document).ready(function () {
-    $('#healthForm').on('submit', function (e) {
-        e.preventDefault(); // Prevent the default form submission
+        document.getElementById("healthForm").addEventListener("submit", function (e) {
+            const steps = parseInt(document.getElementById("steps").value);
+            const water = parseFloat(document.getElementById("water").value);
+            const sleep = parseFloat(document.getElementById("sleep").value);
+            const mood = document.getElementById("mood").value.trim();
+            const exercise = parseFloat(document.getElementById("exercise").value);
 
-        // Validate that all fields are filled
-        const steps = $('#steps').val();
-        const water = $('#water').val();
-        const sleep = $('#sleep').val();
-        const mood = $('#mood').val();
-        const exercise = $('#exercise').val();
+            // Initialize validation message
+            let validationMessage = "";
 
-        if (!steps || !water || !sleep || !mood || !exercise) {
-            $('#responseMessage').removeClass('hidden text-green-600').addClass('text-red-600').text("Please fill in all fields.").fadeIn().fadeOut(3000);
-            return;
-        }
+            // Validation checks
+            if (isNaN(steps) || steps <= 0) {
+                validationMessage = "Steps must be a positive number.";
+            } else if (isNaN(water) || water <= 0) {
+                validationMessage = "Water intake must be a positive number.";
+            } else if (isNaN(sleep) || sleep <= 0) {
+                validationMessage = "Sleep duration must be a positive number.";
+            } else if (!mood) {
+                validationMessage = "Mood cannot be empty.";
+            } else if (isNaN(exercise) || exercise <= 0) {
+                validationMessage = "Exercise duration must be a positive number.";
+            }
 
-        const formData = $(this).serialize(); // Serialize form data
-        $.ajax({
-            url: '../actions/tracking.php', // PHP file handling the request
-            type: 'POST',
-            data: formData,
-            dataType: 'json',
-            success: function (response) {
-                if (response.success) {
-                    $('#responseMessage').removeClass('hidden').text(response.success).fadeIn().fadeOut(3000);
-                } else if (response.error) {
-                    $('#responseMessage').removeClass('hidden text-green-600').addClass('text-red-600').text(response.error).fadeIn().fadeOut(3000);
-                }
-
-                // Check if a redirect is required
-                if (response.redirect) {
-                    window.location.href = response.redirect; // Perform redirection
-                }
-            },
-            error: function () {
-                $('#responseMessage').removeClass('hidden text-green-600').addClass('text-red-600').text("An error occurred. Please try again.").fadeIn().fadeOut(3000);
+            // Display validation message or allow submission
+            const messageDiv = document.getElementById("validationMessage");
+            if (validationMessage) {
+                e.preventDefault(); // Stop form submission
+                messageDiv.textContent = validationMessage;
+                messageDiv.classList.remove("hidden");
+            } else {
+                messageDiv.classList.add("hidden");
             }
         });
-    });
-});
-
     </script>
 </body>
 </html>

@@ -1,21 +1,21 @@
 <?php
-// Start the session to have access to session data
+// Start the session to access session data
 session_start();
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
-    // If not logged in, send a redirect response to the login page
+    // If not logged in, send a JSON response to redirect
     echo json_encode(['redirect' => '../frontend/login.html']);
     exit();
 }
+
 include '../db/db.php';
-// Remove all session variables to log out the user
-session_unset(); // Clears all session data
 
-// Destroy the session completely
-session_destroy(); // Ends the session and clears session data on the server
+// Remove all session variables and destroy the session to log out the user
+session_unset();
+session_destroy();
 
-// Redirect the user back to the login page
-header('Location: ../frontend/index.html');
-exit(); // Stop further script execution after redirect
+// Return a JSON response indicating success
+echo json_encode(['success' => true]);
+exit();
 ?>
