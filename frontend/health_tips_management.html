@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Health Tips</title>
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+
+<body class="bg-gray-50 text-gray-900 font-sans min-h-screen">
+    <header class="bg-gradient-to-r from-blue-500 to-green-400 text-white py-6">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <h1 class="text-2xl font-semibold">Admin Dashboard - Tips Management</h1>
+            <a href="admin.html" class="bg-white text-blue-500 px-4 py-2 rounded-md hover:bg-gray-100">Back to Dashboard</a>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-12">
+        <h1 class="text-3xl font-semibold text-center mb-8">Manage Health Tips</h1>
+
+        <!-- Add Health Tip Form -->
+        <form class="mb-8 bg-white p-6 rounded-lg shadow-md" id="add-tip-form" onsubmit="addHealthTip(event)">
+            <h2 class="text-2xl font-semibold mb-4">Add a New Health Tip</h2>
+            <div class="mb-4">
+                <label for="tip-text" class="block font-medium mb-2">Health Tip Text</label>
+                <textarea id="tip-text" class="w-full border rounded p-2" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">
+                Add Tip
+            </button>
+        </form>
+
+        <!-- Health Tips List -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-4">Existing Health Tips</h2>
+            <table class="table-auto w-full border-collapse border border-gray-200">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="border px-4 py-2">Tip ID</th>
+                        <th class="border px-4 py-2">Health Tip</th>
+                        <th class="border px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tips-table-body">
+                    <!-- JavaScript will populate this -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const apiUrl = '../actions/health_tips_api.php';
+
+        // Fetch all health tips
+        async function fetchHealthTips() {
+            try {
+                const response = await fetch(apiUrl);
+                const tips = await response.json();
+
+                if (!Array.isArray(tips)) {
+                    throw new Error('Invalid data format received');
+                }
+
+                const tableBody = document.getElementById('tips-table-body');
+                tableBody.innerHTML = '';
+
+                tips.forEach(tip => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="border px-4 py-2">${tip.tip_id}</td>
+                        <td class="border px-4 py-2">${tip.tip_text}</td>
+                        <td class="border px-4 py-2">
+                            <button class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
+                                onclick="deleteHealthTip(${tip.tip_id})">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error fetching health tips:', error);
+                alert('Failed to load health tips.');
+            }
+        }
+
+        // Add a new health tip
+        async function addHealthTip(event) {
+            event.preventDefault();
+            const tipTextElement = document.getElementById('tip-text');
+            const tipText = tipTextElement.value.trim();
+
+            if (!tipText) {
+                alert('Please fill in the health tip text.');
+                tipTextElement.focus(); // Focus on the input field if validation fails
+                return;
+            }
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'add', tip_text: tipText })
+                });
+
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    alert(result.success);
+                    tipTextElement.value = ''; // Clear the input field
+                    fetchHealthTips(); // Refresh the tips list
+                } else {
+                    alert(result.error || 'Failed to add health tip.');
+                }
+            } catch (error) {
+                console.error('Error adding health tip:', error);
+                alert('Failed to add health tip.');
+            }
+        }
+
+        // Delete a health tip
+        async function deleteHealthTip(tipId) {
+            if (!confirm('Are you sure you want to delete this tip?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tip_id: tipId })
+                });
+
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    alert(result.success);
+                    fetchHealthTips(); // Refresh the tips list
+                } else {
+                    alert(result.error || 'Failed to delete health tip.');
+                }
+            } catch (error) {
+                console.error('Error deleting health tip:', error);
+                alert('Failed to delete health tip.');
+            }
+        }
+
+        // Fetch health tips on page load
+        document.addEventListener('DOMContentLoaded', fetchHealthTips);
+    </script>
+</body>
+
+</html>

@@ -45,7 +45,7 @@
         <!-- Dashboard Section -->
         <section class="container mx-auto px-6 py-12">
             <h1 class="text-3xl font-semibold text-center mb-8">Welcome to Your Dashboard</h1>
-
+        
             <!-- Summary Cards -->
             <div id="dashboard-data" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="bg-white p-6 rounded-lg shadow-lg text-center">
@@ -69,12 +69,19 @@
                     <p class="text-sm text-gray-500">Last recorded mood</p>
                 </div>
             </div>
-
+        
+            <!-- Health Tip Section -->
+            <div class="bg-gradient-to-r from-green-200 via-green-300 to-green-400 p-6 rounded-lg shadow-lg text-center mt-12">
+                <h2 class="text-2xl font-bold mb-4">Health Tip of the Day</h2>
+                <p id="health-tip" class="text-lg text-gray-800 italic">"Loading health tip..."</p>
+            </div>
+        
             <!-- Chart Section -->
             <div class="mt-8">
                 <canvas id="dashboard-chart" width="400" height="200"></canvas>
             </div>
         </section>
+        
     </div>
 
     <!-- Footer -->
@@ -83,7 +90,7 @@
     </footer>
 
     <script>
-        // Function to fetch data from the PHP backend
+// Function to fetch health tip and other dashboard data
         async function fetchDashboardData() {
             try {
                 const response = await fetch('../actions/dashboard.php', {
@@ -113,6 +120,9 @@
                 document.getElementById('water-intake').textContent = `${data.total_water_intake} L`;
                 document.getElementById('sleep-hours').textContent = `${data.total_sleep_hours} h`;
                 document.getElementById('recent-mood').textContent = data.last_mood || 'No mood recorded';
+
+                // Update the health tip
+                document.getElementById('health-tip').textContent = data.health_tip || "Stay hydrated and take breaks!";
 
                 // Prepare chart data
                 const chartData = {
@@ -149,6 +159,7 @@
                 document.getElementById('water-intake').textContent = 'Error';
                 document.getElementById('sleep-hours').textContent = 'Error';
                 document.getElementById('recent-mood').textContent = 'Error';
+                document.getElementById('health-tip').textContent = 'Error loading health tip';
             }
         }
 

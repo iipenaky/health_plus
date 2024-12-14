@@ -1,10 +1,9 @@
 <?php
 // Define server details needed to connect to the database
-$servername = 'localhost'; // The server where the database is hosted
-$username = 'root';      // The username to access the database
+$servername = 'localhost'; 
+$username = 'root'; 
 $password = '';  
-$dbname = 'health_plus';    //pass      
-// $dbname = 'webtech_fall2024_peniel_ansah'; 
+$dbname = 'health_plus';        
 
 // Attempt to connect to the database using the provided details
 $conn = mysqli_connect($servername, $username, $password, $dbname) 

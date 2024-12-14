@@ -3,7 +3,6 @@
 include '../db/db.php';
 // Start session to store user data
 session_start();
-global $conn;
 // Enable error reporting to display errors for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);

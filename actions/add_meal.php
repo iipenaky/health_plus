@@ -4,14 +4,11 @@ ini_set('display_errors', 1);
 
 session_start();
 
-// Check if the user is logged in
-if (!isset($_SESSION['user_id'])) {
-    // Return a JSON response indicating the user is not authorized
-    echo json_encode(['redirect' => '../frontend/login.html']);
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
+    echo json_encode(['redirect' => '../frontend/index.html']);
     exit();
 }
 
-// Include database connection
 include '../db/db.php';
 
 

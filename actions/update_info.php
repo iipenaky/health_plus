@@ -3,8 +3,8 @@ session_start();
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
-    // Return a JSON response indicating the user is not authorized
-    echo json_encode(['redirect' => '../frontend/login.html']);
+    // Return a JSON response indicating redirection
+    echo json_encode(['redirect' => '../frontend/index.html']);
     exit();
 }
 include '../db/db.php';
@@ -12,7 +12,7 @@ include '../db/db.php';
 
 $user_id = $_SESSION['user_id'];
 
-// Get data from the AJAX request
+// Get name and email
 $name = $_POST['name'] ?? '';
 $email = $_POST['email'] ?? '';
 

@@ -79,15 +79,6 @@ CREATE TABLE IF NOT EXISTS Health_Quiz (
     FOREIGN KEY (user_id) REFERENCES HealthUsers(user_id) ON DELETE CASCADE
 );
 
--- Create Profile_Settings Table
-CREATE TABLE IF NOT EXISTS Profile_Settings (
-    setting_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    health_goal VARCHAR(255),
-    notification_preferences JSON DEFAULT ('{"email":true, "sms":true, "reminders":true}'),
-    privacy ENUM('public', 'private') DEFAULT 'public',
-    FOREIGN KEY (user_id) REFERENCES HealthUsers(user_id) ON DELETE CASCADE
-);
 
 -- Create Health_Tips Table
 CREATE TABLE IF NOT EXISTS Health_Tips (

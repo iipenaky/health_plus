@@ -1,30 +1,19 @@
 <?php
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
-// Start the session
 session_start();
-
-// Check if the user is logged in and is an admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    // If not logged in or not an admin, send a rerect response to the login page
-    echo json_encode(['redirect' => '../frontend/login.html']);
+    echo json_encode(['redirect' => '../frontend/index.html']);
     exit();
 }
 
-// Include the database connection file
 include '../db/db.php';
 
-
-// Check if the connection was successful
 if ($conn->connect_error) {
-    http_response_code(500); // Internal Server Error
+    http_response_code(500);
     echo json_encode(['error' => 'Database connection failed: ' . $conn->connect_error]);
     exit();
 }
 
-// Handle different actions
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
 switch ($action) {
@@ -41,7 +30,6 @@ switch ($action) {
         break;
 }
 
-// Fetch all comments
 function fetchAllComments($conn)
 {
     $sql = "SELECT c.comment_id, c.content, c.created_at, u.name, t.title AS topic_title 
@@ -62,7 +50,6 @@ function fetchAllComments($conn)
     }
 }
 
-// Delete a comment
 function deleteComment($conn)
 {
     if (!isset($_POST['comment_id'])) {
@@ -90,6 +77,5 @@ function deleteComment($conn)
     }
 }
 
-// Close the database connection
 $conn->close();
 ?>

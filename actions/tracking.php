@@ -6,10 +6,10 @@ include '../db/db.php';
 
 // Check if the user is logged in and has the role "user"
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
-    echo json_encode(['redirect' => '../frontend/login.html']);
+    // Return a JSON response indicating redirection
+    echo json_encode(['redirect' => '../frontend/index.html']);
     exit();
 }
-
 // Check if the form data is received via POST method
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Ensure all required POST fields are present

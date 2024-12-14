@@ -12,7 +12,6 @@ session_start();
 // Check if the form was submitted using the POST method
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    // Collect and trim form data to remove unnecessary whitespace
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
 

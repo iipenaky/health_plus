@@ -6,8 +6,7 @@ ini_set('display_errors', 1);
 // Start the session
 session_start();
 
-// Include the database connection file
-include '../db/db.php';
+
 
 // Check if the user is logged in and is a user
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
@@ -15,7 +14,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
     echo json_encode(['redirect' => '../frontend/index.html']);
     exit();
 }
-
+// Include the database connection file
+include '../db/db.php';
 // Check if the connection was successful 
 if ($conn->connect_error) { 
     http_response_code(500); // Internal Server Error 
@@ -120,12 +120,23 @@ $lastMood = $moodData ? $moodData['mood'] : "";
 // Close the mood statement 
 $moodStmt->close(); 
 
-// Return the aggregated data and the most recent mood as JSON 
+// Fetch a random health tip
+$tipQuery = "SELECT tip_text FROM Health_Tips ORDER BY RAND() LIMIT 1";
+$tipResult = $conn->query($tipQuery);
+
+$healthTip = "Stay healthy and active!"; // Default tip
+if ($tipResult && $tipResult->num_rows > 0) {
+    $tipData = $tipResult->fetch_assoc();
+    $healthTip = $tipData['tip_text'];
+}
+
+// Return the aggregated data, the most recent mood, and the health tip as JSON 
 echo json_encode([ 
     'total_steps' => (int)$aggregatedData['total_steps'], 
     'total_water_intake' => (float)$aggregatedData['total_water_intake'], 
     'total_sleep_hours' => (float)$aggregatedData['total_sleep_hours'], 
-    'last_mood' => $lastMood 
+    'last_mood' => $lastMood, 
+    'health_tip' => $healthTip
 ]); 
 
 // Close the database connection 

@@ -3,9 +3,9 @@
 session_start();
 
 // Check if the user is logged in
-if (!isset($_SESSION['user_id'])) {
-    // If not logged in, send a redirect response to the login page
-    echo json_encode(['redirect' => '../frontend/login.html']);
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
+    // Return a JSON response indicating redirection
+    echo json_encode(['redirect' => '../frontend/index.html']);
     exit();
 }
 include '../db/db.php';
