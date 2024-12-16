@@ -1,17 +1,13 @@
 <?php
-// Start the session
 session_start();
 
-// Check if the user is logged in
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
-    // Return a JSON response indicating redirection
     echo json_encode(['redirect' => '../frontend/index.html']);
     exit();
 }
 include '../db/db.php';
 
 
-// Check if the required POST parameters are set
 if (isset($_POST['goal']) && isset($_POST['experience'])) {
     $user_id = $_SESSION['user_id'];
     $goal = $_POST['goal'];
@@ -117,16 +113,11 @@ if (isset($_POST['goal']) && isset($_POST['experience'])) {
         ],
     ];
 
-    // Get the selected routine
     $selected_routine_data = $routines[$goal][$experience] ?? null;
 
     if ($selected_routine_data) {
-        // Use a try-catch block to handle any potential errors
         try {
-            // Prepare the SQL statement
             $stmt = $conn->prepare("INSERT INTO Exercise_Routines (user_id, routine_name, duration, intensity) VALUES (?, ?, ?, ?)");
-
-            // Bind parameters to the SQL query
             $stmt->bind_param(
                 "isds",
                 $user_id,
@@ -134,13 +125,8 @@ if (isset($_POST['goal']) && isset($_POST['experience'])) {
                 $selected_routine_data['duration'],
                 $selected_routine_data['intensity']
             );
-
-            // Execute the query
             if ($stmt->execute()) {
-                // Get the last inserted routine ID
                 $routine_id = $stmt->insert_id;
-
-                // Prepare and send the response
                 $response = [
                     'routine_id' => $routine_id,
                     'routine_name' => $selected_routine_data['routine_name'],
@@ -153,11 +139,8 @@ if (isset($_POST['goal']) && isset($_POST['experience'])) {
             } else {
                 echo json_encode(['error' => 'Failed to save routine. Please try again.']);
             }
-
-            // Close the statement
             $stmt->close();
         } catch (Exception $e) {
-            // Log the error and return a generic error message
             error_log("Database error: " . $e->getMessage());
             echo json_encode(['error' => 'Failed to save routine. Please try again.']);
         }

@@ -6,9 +6,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 }
 
 include '../db/db.php';
-// Check the request method
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Fetch all health tips
     $query = "SELECT * FROM Health_Tips ORDER BY created_at DESC";
     $result = $conn->query($query);
 
@@ -25,7 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Add a new health tip
     $data = json_decode(file_get_contents('php://input'), "Tip added");
     if (isset($data['action']) && $data['action'] === 'add' && !empty($data['tip_text'])) {
         $tip_text = $conn->real_escape_string($data['tip_text']);
@@ -38,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-    // Delete a health tip
     $data = json_decode(file_get_contents('php://input'), true);
     if (isset($data['tip_id'])) {
         $tip_id = (int)$data['tip_id'];

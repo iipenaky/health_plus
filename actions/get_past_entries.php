@@ -1,10 +1,8 @@
 <?php
-// Start the session
+
 session_start();
 
-// Check if the user is logged in
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
-    // Return a JSON response indicating redirection
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') { 
     echo json_encode(['redirect' => '../frontend/index.html']);
     exit();
 }
@@ -14,7 +12,6 @@ header('Content-Type: application/json');
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch all journal entries for the current user
 $query = "SELECT user_id,journal_id, DATE_FORMAT(entry_date, '%Y-%m-%d') as formatted_date, entry_text 
           FROM Journal_Entries 
           WHERE user_id = ?";

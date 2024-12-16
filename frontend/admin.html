@@ -68,56 +68,54 @@
     </footer>
 
     <script>
-// Function to fetch dashboard data
-async function fetchDashboardData() {
-    try {
-        const response = await fetch('../actions/admin_dashboard.php');
-        const data = await response.json();
+        // Function to fetch dashboard data
+        async function fetchDashboardData() {
+            try {
+                const response = await fetch('../actions/admin_dashboard.php');
+                const data = await response.json();
 
-        if (data.redirect) {
-            // If the user is not logged in or is not an admin, redirect to login page
-            window.location.href = data.redirect;
-            return;
+                if (data.redirect) {
+                    // If the user is not logged in or is not an admin, redirect to login page
+                    window.location.href = data.redirect;
+                    return;
+                }
+
+                // Update the active users section
+                document.getElementById('active-users').innerText = data.activeUsers;
+                document.getElementById('common-goal').innerText = data.commonGoal;
+                document.getElementById('total-logs').innerText = data.totalLogs;
+
+                // Create a chart for app statistics (now showing topics or quiz accuracy)
+                const ctx = document.getElementById('statisticsChart').getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(data.statistics),
+                        datasets: [{
+                            label: 'Topics Published (Monthly)',
+                            data: Object.values(data.statistics),
+                            backgroundColor: '#4caf50',
+                            borderColor: '#388e3c',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+            }
         }
 
-        // Update the active users section
-        document.getElementById('active-users').innerText = data.activeUsers;
-        document.getElementById('common-goal').innerText = data.commonGoal;
-        document.getElementById('total-logs').innerText = data.totalLogs;
-
-        // Create a chart for app statistics (now showing topics or quiz accuracy)
-        const ctx = document.getElementById('statisticsChart').getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(data.statistics),
-                datasets: [{
-                    label: 'Topics Published (Monthly)',
-                    data: Object.values(data.statistics),
-                    backgroundColor: '#4caf50',
-                    borderColor: '#388e3c',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
-    } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-    }
-}
-
-// Fetch data when the page loads
-window.onload = fetchDashboardData;
-
-
+        // Fetch data when the page loads
+        window.onload = fetchDashboardData;
     </script>
 </body>
 </html>

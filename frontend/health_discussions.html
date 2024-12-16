@@ -72,177 +72,177 @@
 
     <!-- JavaScript -->
     <script>
- $(document).ready(function () {
-    // Load topics on page load
-    fetchTopics();
+        $(document).ready(function () {
+            // Load topics on page load
+            fetchTopics();
 
-    // Add new topic
-    $('#addTopicForm').on('submit', function (e) {
-        e.preventDefault();
+            // Add new topic
+            $('#addTopicForm').on('submit', function (e) {
+                e.preventDefault();
 
-        const formData = {
-            title: $('#topicTitle').val(),
-            content: $('#topicContent').val()
-        };
+                const formData = {
+                    title: $('#topicTitle').val(),
+                    content: $('#topicContent').val()
+                };
 
-        $.ajax({
-            url: '../actions/discussions.php?action=add_topic',
-            type: 'POST',
-            data: formData,
-            dataType: 'json',
-            success: function (response) {
-                if (response.redirect) {
-                    // If user is not logged in, redirect to login page
-                    window.location.href = response.redirect;
+                $.ajax({
+                    url: '../actions/discussions.php?action=add_topic',
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.redirect) {
+                            // If user is not logged in, redirect to login page
+                            window.location.href = response.redirect;
+                            return;
+                        }
+
+                        if (response.success) {
+                            alert(response.success);
+                            $('#addTopicForm')[0].reset();
+                            fetchTopics();
+                        } else {
+                            alert(response.error);
+                        }
+                    },
+                    error: function () {
+                        alert('Error adding topic. Please try again.');
+                    }
+                });
+            });
+
+            // Fetch topics from server
+            function fetchTopics() {
+                $.ajax({
+                    url: '../actions/discussions.php?action=fetch_topics',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.redirect) {
+                            // If user is not logged in, redirect to login page
+                            window.location.href = response.redirect;
+                            return;
+                        }
+
+                        if (response.topics) {
+                            renderTopics(response.topics);
+                        } else {
+                            $('#topicsContainer').html('<p>No topics found.</p>');
+                        }
+                    },
+                    error: function () {
+                        alert('Error fetching topics. Please try again.');
+                    }
+                });
+            }
+
+            // Render topics in the container
+            function renderTopics(topics) {
+                const container = $('#topicsContainer');
+                container.empty();
+
+                topics.forEach(topic => {
+                    const topicCard = `
+                        <div class="bg-white p-6 rounded shadow">
+                            <h3 class="text-xl font-semibold">${topic.title}</h3>
+                            <p class="text-gray-700 mt-2">${topic.content}</p>
+                            <p class="text-sm text-gray-500 mt-4">Posted on ${topic.created_at}</p>
+                            <button class="mt-4 text-green-500 underline" onclick="viewComments(${topic.topic_id})">View Comments</button>
+                            <div id="commentsContainer-${topic.topic_id}" class="mt-4 hidden"></div>
+                        </div>
+                    `;
+                    container.append(topicCard);
+                });
+            }
+
+            // View comments for a topic
+            window.viewComments = function (topicId) {
+                const commentsContainer = $(`#commentsContainer-${topicId}`);
+                if (commentsContainer.is(':visible')) {
+                    commentsContainer.slideUp();
                     return;
                 }
 
-                if (response.success) {
-                    alert(response.success);
-                    $('#addTopicForm')[0].reset();
-                    fetchTopics();
-                } else {
-                    alert(response.error);
-                }
-            },
-            error: function () {
-                alert('Error adding topic. Please try again.');
+                $.ajax({
+                    url: `../actions/discussions.php?action=fetch_comments&topic_id=${topicId}`,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.redirect) {
+                            // If user is not logged in, redirect to login page
+                            window.location.href = response.redirect;
+                            return;
+                        }
+
+                        if (response.comments) {
+                            renderComments(topicId, response.comments);
+                        } else {
+                            commentsContainer.html('<p>No comments yet.</p>');
+                        }
+                        commentsContainer.slideDown();
+                    },
+                    error: function () {
+                        alert('Error fetching comments. Please try again.');
+                    }
+                });
+            };
+
+            // Render comments
+            function renderComments(topicId, comments) {
+                const container = $(`#commentsContainer-${topicId}`);
+                container.empty();
+
+                const commentsForm = `
+                    <form class="mt-4" onsubmit="addComment(event, ${topicId})">
+                        <textarea class="w-full border border-gray-300 rounded px-4 py-2 mb-2" rows="3" required placeholder="Add a comment"></textarea>
+                        <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Comment</button>
+                    </form>
+                `;
+
+                container.append(commentsForm);
+
+                comments.forEach(comment => {
+                    const commentCard = `
+                        <div class="bg-gray-100 p-4 rounded mt-4">
+                            <p>${comment.content}</p>
+                            <p class="text-sm text-gray-500 mt-2">Posted on ${comment.created_at}</p>
+                        </div>
+                    `;
+                    container.append(commentCard);
+                });
             }
+
+            // Add a comment to a topic
+            window.addComment = function (e, topicId) {
+                e.preventDefault();
+
+                const commentContent = $(e.target).find('textarea').val();
+
+                $.ajax({
+                    url: '../actions/discussions.php?action=add_comment',
+                    type: 'POST',
+                    data: { topic_id: topicId, content: commentContent },
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.redirect) {
+                            // If user is not logged in, redirect to login page
+                            window.location.href = response.redirect;
+                            return;
+                        }
+
+                        if (response.success) {
+                            alert(response.success);
+                            viewComments(topicId);
+                        } else {
+                            alert(response.error);
+                        }
+                    },
+                    error: function () {
+                        alert('Error adding comment. Please try again.');
+                    }
+                });
+            };
         });
-    });
-
-    // Fetch topics from server
-    function fetchTopics() {
-        $.ajax({
-            url: '../actions/discussions.php?action=fetch_topics',
-            type: 'GET',
-            dataType: 'json',
-            success: function (response) {
-                if (response.redirect) {
-                    // If user is not logged in, redirect to login page
-                    window.location.href = response.redirect;
-                    return;
-                }
-
-                if (response.topics) {
-                    renderTopics(response.topics);
-                } else {
-                    $('#topicsContainer').html('<p>No topics found.</p>');
-                }
-            },
-            error: function () {
-                alert('Error fetching topics. Please try again.');
-            }
-        });
-    }
-
-    // Render topics in the container
-    function renderTopics(topics) {
-        const container = $('#topicsContainer');
-        container.empty();
-
-        topics.forEach(topic => {
-            const topicCard = `
-                <div class="bg-white p-6 rounded shadow">
-                    <h3 class="text-xl font-semibold">${topic.title}</h3>
-                    <p class="text-gray-700 mt-2">${topic.content}</p>
-                    <p class="text-sm text-gray-500 mt-4">Posted on ${topic.created_at}</p>
-                    <button class="mt-4 text-green-500 underline" onclick="viewComments(${topic.topic_id})">View Comments</button>
-                    <div id="commentsContainer-${topic.topic_id}" class="mt-4 hidden"></div>
-                </div>
-            `;
-            container.append(topicCard);
-        });
-    }
-
-    // View comments for a topic
-    window.viewComments = function (topicId) {
-        const commentsContainer = $(`#commentsContainer-${topicId}`);
-        if (commentsContainer.is(':visible')) {
-            commentsContainer.slideUp();
-            return;
-        }
-
-        $.ajax({
-            url: `../actions/discussions.php?action=fetch_comments&topic_id=${topicId}`,
-            type: 'GET',
-            dataType: 'json',
-            success: function (response) {
-                if (response.redirect) {
-                    // If user is not logged in, redirect to login page
-                    window.location.href = response.redirect;
-                    return;
-                }
-
-                if (response.comments) {
-                    renderComments(topicId, response.comments);
-                } else {
-                    commentsContainer.html('<p>No comments yet.</p>');
-                }
-                commentsContainer.slideDown();
-            },
-            error: function () {
-                alert('Error fetching comments. Please try again.');
-            }
-        });
-    };
-
-    // Render comments
-    function renderComments(topicId, comments) {
-        const container = $(`#commentsContainer-${topicId}`);
-        container.empty();
-
-        const commentsForm = `
-            <form class="mt-4" onsubmit="addComment(event, ${topicId})">
-                <textarea class="w-full border border-gray-300 rounded px-4 py-2 mb-2" rows="3" required placeholder="Add a comment"></textarea>
-                <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Comment</button>
-            </form>
-        `;
-
-        container.append(commentsForm);
-
-        comments.forEach(comment => {
-            const commentCard = `
-                <div class="bg-gray-100 p-4 rounded mt-4">
-                    <p>${comment.content}</p>
-                    <p class="text-sm text-gray-500 mt-2">Posted on ${comment.created_at}</p>
-                </div>
-            `;
-            container.append(commentCard);
-        });
-    }
-
-    // Add a comment to a topic
-    window.addComment = function (e, topicId) {
-        e.preventDefault();
-
-        const commentContent = $(e.target).find('textarea').val();
-
-        $.ajax({
-            url: '../actions/discussions.php?action=add_comment',
-            type: 'POST',
-            data: { topic_id: topicId, content: commentContent },
-            dataType: 'json',
-            success: function (response) {
-                if (response.redirect) {
-                    // If user is not logged in, redirect to login page
-                    window.location.href = response.redirect;
-                    return;
-                }
-
-                if (response.success) {
-                    alert(response.success);
-                    viewComments(topicId);
-                } else {
-                    alert(response.error);
-                }
-            },
-            error: function () {
-                alert('Error adding comment. Please try again.');
-            }
-        });
-    };
-});
 
     </script>
 </body>

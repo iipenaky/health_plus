@@ -90,7 +90,7 @@
     </footer>
 
     <script>
-// Function to fetch health tip and other dashboard data
+        // Function to fetch health tip and other dashboard data
         async function fetchDashboardData() {
             try {
                 const response = await fetch('../actions/dashboard.php', {
@@ -122,7 +122,7 @@
                 document.getElementById('recent-mood').textContent = data.last_mood || 'No mood recorded';
 
                 // Update the health tip
-                document.getElementById('health-tip').textContent = data.health_tip || "Stay hydrated and take breaks!";
+                document.getElementById('health-tip').textContent = data.health_tip;
 
                 // Prepare chart data
                 const chartData = {

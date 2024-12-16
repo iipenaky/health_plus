@@ -26,35 +26,35 @@
 
     <!-- JavaScript -->
     <script>
-// Handle the log out with AJAX
-document.getElementById('logoutBtn').addEventListener('click', function () {
-    // Send AJAX request to log out
-    fetch('../actions/logout.php', {
-        method: 'POST'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.redirect) {
-            // If user is not logged in, redirect to login page
-            window.location.href = data.redirect;
-        } else if (data.success) {
-            // Redirect to the homepage after successful logout
-            window.location.href = "../frontend/index.html";
-        } else {
-            alert('Logout failed. Please try again.');
+        // Handle the log out with AJAX
+        document.getElementById('logoutBtn').addEventListener('click', function () {
+            // Send AJAX request to log out
+            fetch('../actions/logout.php', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.redirect) {
+                    // If user is not logged in, redirect to login page
+                    window.location.href = data.redirect;
+                } else if (data.success) {
+                    // Redirect to the homepage after successful logout
+                    window.location.href = "../frontend/index.html";
+                } else {
+                    alert('Logout failed. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('There was an error logging out. Please try again.');
+            });
+        });
+        function goToPreviousPage() {
+        // Check if there is a previous page in the browser history
+        if (window.history.length > 1) {
+            window.history.back();
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('There was an error logging out. Please try again.');
-    });
-});
-function goToPreviousPage() {
-  // Check if there is a previous page in the browser history
-  if (window.history.length > 1) {
-    window.history.back();
-  }
-}
+        }
     </script>
 
 </body>
