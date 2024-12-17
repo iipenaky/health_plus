@@ -1,4 +1,3 @@
-```markdown
 # Health_Plus
 
 Health_Plus is a comprehensive web application that helps users manage their health and wellness. The platform allows users to track key health activities, plan their diets, participate in health-related discussions, and gain insights through data-driven analytics.
