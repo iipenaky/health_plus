@@ -12,7 +12,7 @@ DROP TABLE IF EXISTS Health_Activities;
 DROP TABLE IF EXISTS HealthUsers;
 
 -- Use the database
-USE webtech_fall2024_peniel_ansah;
+USE health_plus;
 
 -- Create HealthUsers Table
 CREATE TABLE IF NOT EXISTS HealthUsers (
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS HealthUsers (
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     role ENUM('user', 'admin') DEFAULT 'user',
-    calorie_goal INT,
+    calorie_goal INT DEFAULT 2500,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -78,7 +78,6 @@ CREATE TABLE IF NOT EXISTS Health_Quiz (
     personalized_tips TEXT,
     FOREIGN KEY (user_id) REFERENCES HealthUsers(user_id) ON DELETE CASCADE
 );
-
 
 -- Create Health_Tips Table
 CREATE TABLE IF NOT EXISTS Health_Tips (

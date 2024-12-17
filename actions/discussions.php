@@ -1,14 +1,19 @@
 <?php
+// Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
 
+// Check if the user is logged in
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
+    // Return a JSON response indicating redirection
     echo json_encode(['redirect' => '../frontend/index.html']);
     exit();
 }
 include '../db/db.php';
 
+
+// Determine the action based on the request
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
 switch ($action) {
@@ -24,10 +29,14 @@ switch ($action) {
     case 'add_comment':
         addComment($conn);
         break;
+    case 'like_comment':
+        likeComment($conn);
+        break;
     default:
         echo json_encode(['error' => 'Invalid action']);
 }
 
+// Fetch all topics
 function fetchTopics($conn)
 {
     $result = $conn->query("SELECT * FROM Health_Topics ORDER BY created_at DESC");
@@ -38,6 +47,7 @@ function fetchTopics($conn)
     echo json_encode(['topics' => $topics]);
 }
 
+// Add a new topic
 function addTopic($conn)
 {
     $user_id = $_SESSION['user_id'];
@@ -60,6 +70,7 @@ function addTopic($conn)
     $stmt->close();
 }
 
+// Fetch comments for a specific topic
 function fetchComments($conn)
 {
     $topic_id = isset($_GET['topic_id']) ? (int)$_GET['topic_id'] : 0;
@@ -77,6 +88,7 @@ function fetchComments($conn)
     echo json_encode(['comments' => $comments]);
 }
 
+// Add a comment to a topic
 function addComment($conn)
 {
     $user_id = $_SESSION['user_id'];
@@ -95,6 +107,40 @@ function addComment($conn)
         echo json_encode(['success' => 'Comment added successfully']);
     } else {
         echo json_encode(['error' => 'Failed to add comment']);
+    }
+    $stmt->close();
+}
+
+// Like a comment
+function likeComment($conn)
+{
+    $user_id = $_SESSION['user_id'];
+    $comment_id = isset($_POST['comment_id']) ? (int)$_POST['comment_id'] : 0;
+
+    if ($comment_id === 0) {
+        echo json_encode(['error' => 'Invalid comment ID']);
+        return;
+    }
+
+    // Check if the user has already liked the comment
+    $checkLike = $conn->prepare("SELECT * FROM Likes WHERE comment_id = ? AND user_id = ?");
+    $checkLike->bind_param("ii", $comment_id, $user_id);
+    $checkLike->execute();
+    $result = $checkLike->get_result();
+
+    if ($result->num_rows > 0) {
+        echo json_encode(['error' => 'You already liked this comment']);
+        return;
+    }
+
+    // Add a like to the comment
+    $stmt = $conn->prepare("INSERT INTO Likes (comment_id, user_id) VALUES (?, ?)");
+    $stmt->bind_param("ii", $comment_id, $user_id);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => 'Comment liked successfully']);
+    } else {
+        echo json_encode(['error' => 'Failed to like comment']);
     }
     $stmt->close();
 }

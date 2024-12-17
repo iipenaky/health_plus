@@ -9,6 +9,7 @@
     <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
     <style>
+        /* Make the body fill the screen height */
         html, body {
             height: 100%;
             margin: 0;
@@ -16,6 +17,7 @@
             flex-direction: column;
         }
 
+        /* This container takes up the remaining space */
         section.container {
             flex: 1;
         }
@@ -77,17 +79,21 @@
         <p>© 2024 HealthPlus. All Rights Reserved.</p>
     </footer>
 
+    <!-- JavaScript for Fetching and Rendering Data -->
     <script>
+        // Fetch user data from the backend and populate the table
         function fetchUserData() {
-            fetch('../actions/admin-users.php') 
+            fetch('../actions/admin-users.php') // Backend endpoint
                 .then(response => response.json())
                 .then(data => {
+                    // Check for redirection in the response
                     if (data.redirect) {
-                        window.location.href = data.redirect; 
+                        window.location.href = data.redirect; // Redirect to login or home page
                         return;
                     }
+
                     const userTable = document.getElementById('userTable');
-                    userTable.innerHTML = ''; 
+                    userTable.innerHTML = ''; // Clear any existing rows
 
                     if (data.error) {
                         userTable.innerHTML = `<tr><td colspan="5" class="py-3 px-4 text-center text-red-500">${data.error}</td></tr>`;
@@ -116,18 +122,20 @@
                     userTable.innerHTML = `<tr><td colspan="5" class="py-3 px-4 text-center text-red-500">Error loading data</td></tr>`;
                 });
         }
+
+        // Handle user deletion
         function deleteAccount(userId) {
             if (confirm('Are you sure you want to delete this account?')) {
                 fetch(`../actions/admin-users.php`, {
                     method: 'DELETE',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `user_id=${encodeURIComponent(userId)}`
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId }) 
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         alert('User deleted successfully!');
-                        fetchUserData();
+                        fetchUserData(); // Refresh the table
                     } else {
                         alert(`Error: ${data.error}`);
                     }
@@ -138,7 +146,10 @@
                 });
             }
         }
+
+        // Handle opening the Edit modal
         function editUser(userId) {
+           
             fetch(`../actions/admin-users.php?user_id=${userId}`)
                 .then(response => response.json())
                 .then(data => {
@@ -153,10 +164,12 @@
                 });
         }
 
+        // Close the Edit modal
         document.getElementById('closeEditModal').addEventListener('click', function() {
             document.getElementById('editModal').classList.add('hidden');
         });
 
+        // Handle Edit User form submission
         document.getElementById('editUserForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -176,7 +189,7 @@
             .then(data => {
                 if (data.success) {
                     alert('User updated successfully!');
-                    fetchUserData();
+                    fetchUserData(); // Refresh the table
                     document.getElementById('editModal').classList.add('hidden');
                 } else {
                     alert('Error: ' + data.error);
@@ -187,6 +200,8 @@
                 alert('An error occurred while updating the user.');
             });
         });
+
+        // Fetch user data on page load
         window.onload = fetchUserData;
     </script>
 

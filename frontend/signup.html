@@ -76,22 +76,22 @@
     </footer>
 
     <script>
-        document.getElementById('signupForm').addEventListener('submit', function (e) {
-            e.preventDefault();  // Prevent the form from submitting normally
-            
+        document.getElementById('signupForm').addEventListener('submit', async function (e) {
+            e.preventDefault(); // Prevent the form from submitting normally
+    
             // Clear previous error messages
             document.getElementById('responseMessage').textContent = '';
             document.getElementById("fullnameError").textContent = '';
             document.getElementById("emailError").textContent = '';
             document.getElementById("passwordError").textContent = '';
             document.getElementById("confirmPasswordError").textContent = '';
-            
+    
             // Validate Form
             const fullname = document.getElementById("fullname").value.trim();
             const email = document.getElementById("email").value.trim();
             const password = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirm_password").value;
-            
+    
             let valid = true;
     
             // Full Name validation
@@ -129,7 +129,7 @@
                 valid = false;
             }
     
-            if (!valid) return;  // Stop if validation fails
+            if (!valid) return; // Stop if validation fails
     
             // Create a FormData object
             const formData = new FormData();
@@ -138,24 +138,32 @@
             formData.append('password', password);
             formData.append('confirm_password', confirmPassword);
     
-            // Send AJAX request
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', '../actions/register.php', true);
-            xhr.onload = function () {
-                if (xhr.status === 200) {
+            try {
+                // Send POST request using fetch
+                const response = await fetch('../actions/register.php', {
+                    method: 'POST',
+                    body: formData
+                });
+    
+                if (response.ok) {
                     // Success
                     document.getElementById('responseMessage').textContent = 'Account created successfully! You can log in now.';
-                    window.location.href = 'login.html';
                     document.getElementById('responseMessage').classList.add('text-green-500');
+                    window.location.href = 'login.html';
                 } else {
                     // Error
-                    document.getElementById('responseMessage').textContent = 'An error occurred. Please try again later.';
+                    const errorData = await response.text();
+                    document.getElementById('responseMessage').textContent = 'An error occurred: ' + errorData;
                     document.getElementById('responseMessage').classList.add('text-red-500');
                 }
-            };
-            xhr.send(formData);
+            } catch (error) {
+                // Network or server error
+                document.getElementById('responseMessage').textContent = 'An unexpected error occurred. Please try again later.';
+                document.getElementById('responseMessage').classList.add('text-red-500');
+            }
         });
     </script>
+    
     
 
 </body>

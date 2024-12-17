@@ -1,22 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <!-- Meta Tags for Character Set, Viewport, and Compatibility -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- Page Title and Favicon -->
     <title>Admin Dashboard - HealthPlus</title>
     <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
+
+    <!-- Link to TailwindCSS for Styling -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    
+    <!-- Link to Chart.js for Creating Graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body class="bg-gray-50 text-gray-900 font-sans">
 
     <!-- Header Section -->
     <header class="bg-gradient-to-r from-green-400 to-blue-500 text-white py-6">
         <div class="container mx-auto flex justify-between items-center px-6">
+            <!-- Site Name or Logo -->
             <div class="text-xl font-semibold">
                 <span class="text-2xl font-bold">HealthPlus Admin</span>
             </div>
+
+            <!-- Navigation Links for Admin -->
             <nav class="flex space-x-6">
                 <a href="usermanagement.html" class="hover:text-gray-200">User Management</a>
                 <a href="quiz_management.html" class="hover:text-gray-200">Quizzes Management</a>
@@ -24,6 +36,8 @@
                 <a href="admin_comments.html" class="hover:text-gray-200">Comments Management</a>
                 <a href="health_tips_management.html" class="hover:text-gray-200">Tips Management</a>
             </nav>
+
+            <!-- Log Out Button -->
             <div>
                 <a href="logout.html" class="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition">Log Out</a>
             </div>
@@ -32,33 +46,34 @@
 
     <!-- Admin Dashboard Section -->
     <section class="container mx-auto px-6 py-12">
+        <!-- Dashboard Title -->
         <h1 class="text-3xl font-semibold text-center mb-8">Admin Dashboard</h1>
 
-        <!-- Metrics Section -->
+        <!-- Metrics Section (Displays Quick Info) -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- Active Users -->
+            <!-- Active Users Metric -->
             <div class="bg-white p-6 rounded-lg shadow-lg text-center">
                 <h2 class="text-2xl font-semibold mb-2">Active Users</h2>
                 <p id="active-users" class="text-4xl font-bold text-blue-500">Loading...</p>
             </div>
 
-            <!-- Common Health Goals -->
+            <!-- Most Common Health Goal Metric -->
             <div class="bg-white p-6 rounded-lg shadow-lg text-center">
                 <h2 class="text-2xl font-semibold mb-2">Most Common Goal</h2>
                 <p id="common-goal" class="text-lg font-medium">Loading...</p>
             </div>
 
-            <!-- Total Daily Logs -->
+            <!-- Total Daily Logs Metric -->
             <div class="bg-white p-6 rounded-lg shadow-lg text-center">
                 <h2 class="text-2xl font-semibold mb-2">Total Daily Logs</h2>
                 <p id="total-logs" class="text-4xl font-bold text-green-500">Loading...</p>
             </div>
         </div>
 
-        <!-- Admin Statistics Section -->
+        <!-- Admin Statistics Section (Graph Display) -->
         <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
             <h2 class="text-2xl font-semibold mb-4">App Statistics</h2>
-            <canvas id="statisticsChart" class="w-full h-64"></canvas>
+            <canvas id="statisticsChart" class="w-full h-64"></canvas> <!-- Placeholder for chart -->
         </div>
     </section>
 
@@ -67,55 +82,65 @@
         <p>© 2024 HealthPlus. All Rights Reserved.</p>
     </footer>
 
+    <!-- JavaScript for Fetching Data and Updating the Dashboard -->
     <script>
-        // Function to fetch dashboard data
+        // Function to fetch dashboard data from the server
         async function fetchDashboardData() {
             try {
+                // Make an API call to fetch data
                 const response = await fetch('../actions/admin_dashboard.php');
                 const data = await response.json();
 
+                // Check if there's a redirect (e.g., if the user is not logged in or is not an admin)
                 if (data.redirect) {
-                    // If the user is not logged in or is not an admin, redirect to login page
                     window.location.href = data.redirect;
                     return;
                 }
 
-                // Update the active users section
+                // Update the Active Users metric
                 document.getElementById('active-users').innerText = data.activeUsers;
+
+                // Update the Most Common Goal metric
                 document.getElementById('common-goal').innerText = data.commonGoal;
+
+                // Update the Total Daily Logs metric
                 document.getElementById('total-logs').innerText = data.totalLogs;
 
-                // Create a chart for app statistics (now showing topics or quiz accuracy)
+                // Get the context of the chart to draw
                 const ctx = document.getElementById('statisticsChart').getContext('2d');
+
+                // Create a chart using Chart.js (Bar chart in this case)
                 const chart = new Chart(ctx, {
-                    type: 'bar',
+                    type: 'bar',  // Set chart type to 'bar'
                     data: {
+                        // Labels for the X-axis (e.g., months or categories)
                         labels: Object.keys(data.statistics),
                         datasets: [{
-                            label: 'Topics Published (Monthly)',
-                            data: Object.values(data.statistics),
-                            backgroundColor: '#4caf50',
-                            borderColor: '#388e3c',
-                            borderWidth: 1
+                            label: 'Topics Published (Monthly)',  // Label for the dataset
+                            data: Object.values(data.statistics),  // Data to plot
+                            backgroundColor: '#4caf50',  // Green color for the bars
+                            borderColor: '#388e3c',  // Darker green for the bar border
+                            borderWidth: 1  // Border width for the bars
                         }]
                     },
                     options: {
-                        responsive: true,
+                        responsive: true,  // Make the chart responsive
                         scales: {
                             x: {
-                                beginAtZero: true
+                                beginAtZero: true  // Ensure the x-axis starts at 0
                             }
                         }
                     }
                 });
 
             } catch (error) {
-                console.error('Error fetching dashboard data:', error);
+                console.error('Error fetching dashboard data:', error);  // Log any error
             }
         }
 
-        // Fetch data when the page loads
+        // Fetch dashboard data when the page loads
         window.onload = fetchDashboardData;
     </script>
 </body>
+
 </html>

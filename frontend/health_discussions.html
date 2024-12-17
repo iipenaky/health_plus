@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <!-- Meta tags for character set and viewport settings -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Health Discussions</title>
     <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
+    
+    <!-- TailwindCSS for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    
+    <!-- jQuery for easier DOM manipulation -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <style>
+        /* Basic styling for the page layout */
         html, body {
             height: 100%;
             margin: 0;
@@ -26,6 +31,7 @@
             flex: 1;
         }
 
+        /* Footer styling */
         footer {
             background-color: #2d3748; /* Tailwind bg-gray-800 */
             color: white;
@@ -35,72 +41,88 @@
         }
     </style>
 </head>
+
 <body class="bg-gray-50 text-gray-900 font-sans">
-    <!-- Header -->
+    <!-- Header Section -->
     <header class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-6">
         <div class="container mx-auto flex justify-between">
+            <!-- Main title for the page -->
             <h1 class="text-2xl font-bold">Health Discussions</h1>
+            <!-- Navigation link to go back to dashboard -->
             <a href="dashboard.html" class="bg-white text-green-500 px-4 py-2 rounded hover:bg-gray-100">Back to Dashboard</a>
         </div>
     </header>
 
-    <!-- Main Section -->
+    <!-- Main Content Section -->
     <main class="container mx-auto px-6 py-8">
         <!-- Add Topic Section -->
         <div class="bg-white p-6 rounded shadow mb-8">
+            <!-- Heading for creating a new discussion -->
             <h2 class="text-xl font-semibold mb-4">Start a Discussion</h2>
+            
+            <!-- Form to add a new topic -->
             <form id="addTopicForm">
-                <input type="text" id="topicTitle" name="title" placeholder="Topic Title" 
+                <!-- Input for topic title -->
+                <input type="text" id="topicTitle" name="title" placeholder="Topic Title"
                     class="w-full border border-gray-300 rounded px-4 py-2 mb-4" required>
-                <textarea id="topicContent" name="content" placeholder="What do you want to talk about?" 
+                
+                <!-- Textarea for the topic content -->
+                <textarea id="topicContent" name="content" placeholder="What do you want to talk about?"
                     class="w-full border border-gray-300 rounded px-4 py-2 mb-4" rows="5" required></textarea>
-                <button type="submit" 
+                
+                <!-- Submit button to post the topic -->
+                <button type="submit"
                     class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Post Topic</button>
             </form>
         </div>
 
-        <!-- Topics List -->
+        <!-- Topics List Section -->
         <div id="topicsContainer" class="space-y-6">
-            <!-- Topics will be dynamically inserted here -->
+            <!-- Topics will be dynamically inserted here by JavaScript -->
         </div>
     </main>
 
-    <!-- Footer -->
+    <!-- Footer Section -->
     <footer class="bg-gray-800 text-white text-center py-4">
+        <!-- Footer text -->
         <p>© 2024 HealthPlus. All Rights Reserved.</p>
     </footer>
 
-    <!-- JavaScript -->
+    <!-- JavaScript for handling form submission and fetching/displaying topics -->
     <script>
         $(document).ready(function () {
             // Load topics on page load
             fetchTopics();
 
-            // Add new topic
+            // Handle form submission for adding a new topic
             $('#addTopicForm').on('submit', function (e) {
-                e.preventDefault();
+                e.preventDefault(); // Prevent default form submission
 
+                // Gather form data
                 const formData = {
                     title: $('#topicTitle').val(),
                     content: $('#topicContent').val()
                 };
 
+                // Send the data to the server using AJAX
                 $.ajax({
                     url: '../actions/discussions.php?action=add_topic',
                     type: 'POST',
                     data: formData,
                     dataType: 'json',
                     success: function (response) {
+                        // Handle response from server
                         if (response.redirect) {
-                            // If user is not logged in, redirect to login page
+                            // Redirect to login page if user is not logged in
                             window.location.href = response.redirect;
                             return;
                         }
 
+                        // Show success or error messages
                         if (response.success) {
                             alert(response.success);
-                            $('#addTopicForm')[0].reset();
-                            fetchTopics();
+                            $('#addTopicForm')[0].reset(); // Reset the form after success
+                            fetchTopics(); // Reload the topics list
                         } else {
                             alert(response.error);
                         }
@@ -111,7 +133,7 @@
                 });
             });
 
-            // Fetch topics from server
+            // Fetch all topics from the server
             function fetchTopics() {
                 $.ajax({
                     url: '../actions/discussions.php?action=fetch_topics',
@@ -119,15 +141,16 @@
                     dataType: 'json',
                     success: function (response) {
                         if (response.redirect) {
-                            // If user is not logged in, redirect to login page
+                            // Redirect to login page if user is not logged in
                             window.location.href = response.redirect;
                             return;
                         }
 
+                        // Render the topics if they exist
                         if (response.topics) {
                             renderTopics(response.topics);
                         } else {
-                            $('#topicsContainer').html('<p>No topics found.</p>');
+                            $('#topicsContainer').html('<p>No topics found.</p>'); // If no topics, show message
                         }
                     },
                     error: function () {
@@ -136,11 +159,12 @@
                 });
             }
 
-            // Render topics in the container
+            // Render the list of topics
             function renderTopics(topics) {
                 const container = $('#topicsContainer');
-                container.empty();
+                container.empty(); // Clear existing topics
 
+                // Create and append each topic to the container
                 topics.forEach(topic => {
                     const topicCard = `
                         <div class="bg-white p-6 rounded shadow">
@@ -155,25 +179,29 @@
                 });
             }
 
-            // View comments for a topic
+            // View the comments for a specific topic
             window.viewComments = function (topicId) {
                 const commentsContainer = $(`#commentsContainer-${topicId}`);
+                
+                // Toggle the visibility of the comments section
                 if (commentsContainer.is(':visible')) {
                     commentsContainer.slideUp();
                     return;
                 }
 
+                // Fetch comments for the topic
                 $.ajax({
                     url: `../actions/discussions.php?action=fetch_comments&topic_id=${topicId}`,
                     type: 'GET',
                     dataType: 'json',
                     success: function (response) {
                         if (response.redirect) {
-                            // If user is not logged in, redirect to login page
+                            // Redirect to login if the user is not logged in
                             window.location.href = response.redirect;
                             return;
                         }
 
+                        // Render comments if available
                         if (response.comments) {
                             renderComments(topicId, response.comments);
                         } else {
@@ -187,20 +215,21 @@
                 });
             };
 
-            // Render comments
+            // Render the comments for a specific topic
             function renderComments(topicId, comments) {
                 const container = $(`#commentsContainer-${topicId}`);
-                container.empty();
+                container.empty(); // Clear existing comments
 
+                // Create the form to add a new comment
                 const commentsForm = `
                     <form class="mt-4" onsubmit="addComment(event, ${topicId})">
                         <textarea class="w-full border border-gray-300 rounded px-4 py-2 mb-2" rows="3" required placeholder="Add a comment"></textarea>
                         <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Comment</button>
                     </form>
                 `;
-
                 container.append(commentsForm);
 
+                // Append each comment
                 comments.forEach(comment => {
                     const commentCard = `
                         <div class="bg-gray-100 p-4 rounded mt-4">
@@ -214,10 +243,11 @@
 
             // Add a comment to a topic
             window.addComment = function (e, topicId) {
-                e.preventDefault();
+                e.preventDefault(); // Prevent default form submission
 
                 const commentContent = $(e.target).find('textarea').val();
 
+                // Send the comment to the server using AJAX
                 $.ajax({
                     url: '../actions/discussions.php?action=add_comment',
                     type: 'POST',
@@ -225,14 +255,15 @@
                     dataType: 'json',
                     success: function (response) {
                         if (response.redirect) {
-                            // If user is not logged in, redirect to login page
+                            // Redirect if user is not logged in
                             window.location.href = response.redirect;
                             return;
                         }
 
+                        // Show success or error messages
                         if (response.success) {
                             alert(response.success);
-                            viewComments(topicId);
+                            viewComments(topicId); // Refresh comments after adding
                         } else {
                             alert(response.error);
                         }
@@ -243,7 +274,7 @@
                 });
             };
         });
-
     </script>
 </body>
+
 </html>

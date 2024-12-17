@@ -1,129 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta Tags for Character Set and Viewport -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Page Title -->
     <title>Admin - Manage Comments</title>
+
+    <!-- Favicon Link -->
     <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
-    <link
-    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-    rel="stylesheet"
-    />
+
+    <!-- Link to TailwindCSS for Styling -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+
+    <!-- jQuery Library for AJAX and DOM Manipulation -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Custom Inline Styles -->
     <style>
         html, body {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
+            height: 100%; /* Ensures the page takes full height */
+            margin: 0; /* Removes default margin */
+            display: flex; /* Enables flex layout */
+            flex-direction: column; /* Aligns content in a column */
         }
 
         body {
-            flex: 1;
+            flex: 1; /* Makes the body flexible to fill available space */
         }
 
         section.container {
-            flex: 1;
+            flex: 1; /* Ensures the container takes remaining space */
         }
 
         footer {
-            background-color: #2d3748; 
-            color: white;
-            text-align: center;
-            padding: 1rem;
-            margin-top: auto;
+            background-color: #2d3748; /* Tailwind bg-gray-800 */
+            color: white; /* White text color */
+            text-align: center; /* Center-aligns the text */
+            padding: 1rem; /* Adds padding */
+            margin-top: auto; /* Pushes footer to the bottom */
         }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans">
-  <header class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-6">
-    <div class="container mx-auto px-6 flex justify-between items-center">
-      <h1 class="text-2xl font-semibold">Manage Comments</h1>
-      <a href="admin.html" class="bg-white text-green-500 px-4 py-2 rounded-md hover:bg-gray-100">Back to Dashboard</a>
-    </div>
-  </header>
 
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-6">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <!-- Page Title -->
+            <h1 class="text-2xl font-semibold">Manage Comments</h1>
+            
+            <!-- Back to Dashboard Link -->
+            <a href="admin.html" class="bg-white text-green-500 px-4 py-2 rounded-md hover:bg-gray-100">Back to Dashboard</a>
+        </div>
+    </header>
+
+    <!-- Main Content Section -->
     <main class="container mx-auto px-6 py-8">
+        <!-- Comments List Container -->
         <div id="commentsContainer" class="space-y-6">
+            <!-- Comments will be dynamically inserted here -->
         </div>
     </main>
 
-    <!-- Footer -->
+    <!-- Footer Section -->
     <footer class="bg-gray-800 text-white text-center py-4">
+        <!-- Footer Text -->
         <p>© 2024 HealthPlus. All Rights Reserved.</p>
     </footer>
 
+    <!-- JavaScript Section -->
     <script>
         $(document).ready(function () {
+            // Fetch comments when the page loads
             fetchComments();
 
+            // Function to fetch comments from the server
             function fetchComments() {
                 $.ajax({
-                    url: '../actions/admin_comments.php?action=fetch_all_comments',
-                    type: 'GET',
-                    dataType: 'json',
+                    url: '../actions/admin_comments.php?action=fetch_all_comments',  // URL to fetch comments
+                    type: 'GET',  // HTTP GET request
+                    dataType: 'json',  // Expecting JSON response
                     success: function (response) {
+                        // If the response indicates a redirect (e.g., user is not logged in or not an admin)
                         if (response.redirect) {
-                            window.location.href = response.redirect;
+                            window.location.href = response.redirect; // Redirect to login page
                             return;
                         }
 
+                        // If there are comments, render them
                         if (response.comments) {
                             renderComments(response.comments);
                         } else {
+                            // Display message if no comments are found
                             $('#commentsContainer').html('<p>No comments found.</p>');
                         }
                     },
                     error: function () {
+                        // Alert if there is an error fetching comments
                         alert('Error fetching comments. Please try again.');
                     }
                 });
             }
+
+            // Function to render comments on the page
             function renderComments(comments) {
                 const container = $('#commentsContainer');
-                container.empty();
+                container.empty();  // Clear any existing content
 
+                // Loop through each comment and create a card for it
                 comments.forEach(comment => {
                     const commentCard = `
                         <div class="bg-white p-6 rounded shadow">
-                            <p class="text-gray-700">${comment.content}</p>
+                            <p class="text-gray-700">${comment.content}</p>  <!-- Comment content -->
                             <p class="text-sm text-gray-500 mt-4">
-                                Commented by ${comment.username} on "${comment.topic_title}" at ${comment.created_at}
-                            </p>
+                                Commented by ${comment.name} on "${comment.topic_title}" at ${comment.created_at}
+                            </p> <!-- Comment metadata (author, topic, date) -->
                             <button class="text-red-500 underline mt-4" onclick="deleteComment(${comment.comment_id})">Delete Comment</button>
+                            <!-- Button to delete the comment -->
                         </div>
                     `;
-                    container.append(commentCard);
+                    container.append(commentCard);  // Append the comment card to the container
                 });
             }
-            window.deleteComment = function (commentId) {
-                const confirmDelete = confirm('Are you sure you want to delete this comment?');
-                if (!confirmDelete) return;
 
+            // Function to delete a comment
+            window.deleteComment = function (commentId) {
+                // Ask user to confirm the deletion
+                const confirmDelete = confirm('Are you sure you want to delete this comment?');
+                if (!confirmDelete) return;  // If user cancels, do nothing
+
+                // Send an AJAX request to delete the comment
                 $.ajax({
-                    url: '../actions/admin_comments.php?action=delete_comment',
-                    type: 'POST',
-                    data: { comment_id: commentId },
-                    dataType: 'json',
+                    url: '../actions/admin_comments.php?action=delete_comment',  // URL to delete comment
+                    type: 'POST',  // HTTP POST request
+                    data: { comment_id: commentId },  // Send the comment ID to be deleted
+                    dataType: 'json',  // Expecting JSON response
                     success: function (response) {
+                        // If the response indicates a redirect (e.g., user is not logged in or not an admin)
                         if (response.redirect) {
-                            window.location.href = response.redirect;
+                            window.location.href = response.redirect; // Redirect to login page
                             return;
                         }
 
+                        // If the deletion is successful, alert the user and refresh the comments
                         if (response.success) {
                             alert(response.success);
-                            fetchComments(); 
+                            fetchComments();  // Refresh the comments list after deletion
                         } else {
+                            // If there's an error, show an error message
                             alert(response.error);
                         }
                     },
                     error: function () {
+                        // Alert if there is an error deleting the comment
                         alert('Error deleting comment. Please try again.');
                     }
                 });
             };
-        });       
+        });
     </script>
 </body>
 </html>

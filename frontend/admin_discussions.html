@@ -1,144 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta Tags for Character Set and Viewport -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Page Title -->
     <title>Admin - Manage Discussions</title>
+
+    <!-- Favicon Link -->
     <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
-    <link
-    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-    rel="stylesheet"
-    />
+
+    <!-- Link to TailwindCSS for Styling -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+
+    <!-- jQuery Library for AJAX and DOM Manipulation -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Custom Inline Styles -->
     <style>
         html, body {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
+            height: 100%; /* Ensures the page takes full height */
+            margin: 0; /* Removes default margin */
+            display: flex; /* Enables flex layout */
+            flex-direction: column; /* Aligns content in a column */
         }
 
         body {
-            flex: 1;
+            flex: 1; /* Makes the body flexible to fill available space */
         }
 
         section.container {
-            flex: 1;
+            flex: 1; /* Ensures the container takes remaining space */
         }
 
         footer {
             background-color: #2d3748; /* Tailwind bg-gray-800 */
-            color: white;
-            text-align: center;
-            padding: 1rem;
-            margin-top: auto;
+            color: white; /* White text color */
+            text-align: center; /* Center-aligns the text */
+            padding: 1rem; /* Adds padding */
+            margin-top: auto; /* Pushes footer to the bottom */
         }
     </style>
 </head>
-</head>
 <body class="bg-gray-50 text-gray-900 font-sans">
-    <!-- Header -->
-  <header class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-6">
-    <div class="container mx-auto px-6 flex justify-between items-center">
-      <h1 class="text-2xl font-semibold">Manage Topics</h1>
-      <a href="admin.html" class="bg-white text-green-500 px-4 py-2 rounded-md hover:bg-gray-100">Back to Dashboard</a>
-    </div>
-  </header>
 
-    <!-- Main Section -->
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-6">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <!-- Page Title -->
+            <h1 class="text-2xl font-semibold">Manage Topics</h1>
+            
+            <!-- Back to Dashboard Link -->
+            <a href="admin.html" class="bg-white text-green-500 px-4 py-2 rounded-md hover:bg-gray-100">Back to Dashboard</a>
+        </div>
+    </header>
+
+    <!-- Main Content Section -->
     <main class="container mx-auto px-6 py-8">
-        <!-- Topics List -->
+        <!-- Topics List Container -->
         <div id="topicsContainer" class="space-y-6">
             <!-- Topics will be dynamically inserted here -->
         </div>
     </main>
 
-    <!-- Footer -->
+    <!-- Footer Section -->
     <footer class="bg-gray-800 text-white text-center py-4">
+        <!-- Footer Text -->
         <p>© 2024 HealthPlus. All Rights Reserved.</p>
     </footer>
 
-    <!-- JavaScript -->
+    <!-- JavaScript Section -->
     <script>
         $(document).ready(function () {
-            // Fetch topics on page load
+            // Fetch topics when the page loads
             fetchTopics();
 
-            // Fetch topics from server
+            // Function to fetch topics from the server
             function fetchTopics() {
                 $.ajax({
-                    url: '../actions/admin_discussions.php?action=fetch_all_topics',
-                    type: 'GET',
-                    dataType: 'json',
+                    url: '../actions/admin_discussions.php?action=fetch_all_topics',  // URL to fetch topics
+                    type: 'GET',  // HTTP GET request
+                    dataType: 'json',  // Expecting JSON response
                     success: function (response) {
+                        // If the response indicates a redirect (e.g., user is not logged in or not an admin)
                         if (response.redirect) {
-                            // If the user is not logged in or not an admin, redirect to login page
-                            window.location.href = response.redirect;
+                            window.location.href = response.redirect; // Redirect to login page
                             return;
                         }
 
+                        // If there are topics, render them
                         if (response.topics) {
                             renderTopics(response.topics);
                         } else {
+                            // Display message if no topics are found
                             $('#topicsContainer').html('<p>No topics found.</p>');
                         }
                     },
                     error: function () {
+                        // Alert if there is an error fetching topics
                         alert('Error fetching topics. Please try again.');
                     }
                 });
             }
 
-            // Render topics in the container
+            // Function to render topics on the page
             function renderTopics(topics) {
                 const container = $('#topicsContainer');
-                container.empty();
+                container.empty();  // Clear any existing content
 
+                // Loop through each topic and create a card for it
                 topics.forEach(topic => {
                     const topicCard = `
                         <div class="bg-white p-6 rounded shadow">
-                            <h3 class="text-xl font-semibold">${topic.title}</h3>
-                            <p class="text-gray-700 mt-2">${topic.content}</p>
-                            <p class="text-sm text-gray-500 mt-4">Posted by ${topic.name} on ${topic.created_at}</p>
+                            <h3 class="text-xl font-semibold">${topic.title}</h3>  <!-- Topic title -->
+                            <p class="text-gray-700 mt-2">${topic.content}</p>  <!-- Topic content -->
+                            <p class="text-sm text-gray-500 mt-4">Posted by ${topic.name} on ${topic.created_at}</p>  <!-- Topic metadata (author, date) -->
                             <button class="text-red-500 underline mt-4" onclick="deleteTopic(${topic.topic_id})">Delete Topic</button>
+                            <!-- Button to delete the topic -->
                         </div>
                     `;
-                    container.append(topicCard);
+                    container.append(topicCard);  // Append the topic card to the container
                 });
             }
 
-            // Delete a topic
+            // Function to delete a topic
             window.deleteTopic = function (topicId) {
+                // Ask user to confirm the deletion
                 const confirmDelete = confirm('Are you sure you want to delete this topic?');
-                if (!confirmDelete) return;
+                if (!confirmDelete) return;  // If user cancels, do nothing
 
+                // Send an AJAX request to delete the topic
                 $.ajax({
-                    url: '../actions/admin_discussions.php?action=delete_topic',
-                    type: 'POST',
-                    data: { topic_id: topicId },
-                    dataType: 'json',
+                    url: '../actions/admin_discussions.php?action=delete_topic',  // URL to delete topic
+                    type: 'POST',  // HTTP POST request
+                    data: { topic_id: topicId },  // Send the topic ID to be deleted
+                    dataType: 'json',  // Expecting JSON response
                     success: function (response) {
+                        // If the response indicates a redirect (e.g., user is not logged in or not an admin)
                         if (response.redirect) {
-                            // If the user is not logged in or not an admin, redirect to login page
-                            window.location.href = response.redirect;
+                            window.location.href = response.redirect; // Redirect to login page
                             return;
                         }
 
+                        // If the deletion is successful, alert the user and refresh the topics
                         if (response.success) {
                             alert(response.success);
-                            fetchTopics();  // Refresh the topics after deletion
+                            fetchTopics();  // Refresh the topics list after deletion
                         } else {
+                            // If there's an error, show an error message
                             alert(response.error);
                         }
                     },
                     error: function () {
+                        // Alert if there is an error deleting the topic
                         alert('Error deleting topic. Please try again.');
                     }
                 });
             };
         });
-
     </script>
 </body>
 </html>
-

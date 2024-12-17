@@ -32,6 +32,7 @@
   <header class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-6">
     <div class="container mx-auto px-6 flex justify-between items-center">
       <h1 class="text-2xl font-semibold">Exercise Routine Builder</h1>
+      <!-- Navigation Link to go back to Dashboard -->
       <a href="dashboard.html" class="bg-white text-green-500 px-4 py-2 rounded-md hover:bg-gray-100">Back to Dashboard</a>
     </div>
   </header>
@@ -83,23 +84,24 @@
   <!-- Footer -->
   <footer class="bg-gray-800 text-white py-6 text-center">
     <p>© 2024 HealthPlus. All Rights Reserved.</p>
-</footer>
+  </footer>
 
   <!-- JavaScript -->
   <script>
+    // Event listener for the "Generate Routine" button
     document.getElementById('generate-routine').addEventListener('click', async () => {
-      const goal = document.getElementById('goal').value;
-      const experience = document.getElementById('experience').value;
-      const routineDisplay = document.getElementById('routine-display');
-      const feedbackSection = document.getElementById('feedback-section');
-      const feedbackMessage = document.getElementById('feedback-message');
+      const goal = document.getElementById('goal').value; // Get the selected fitness goal
+      const experience = document.getElementById('experience').value; // Get the selected experience level
+      const routineDisplay = document.getElementById('routine-display'); // Where the generated routine will be displayed
+      const feedbackSection = document.getElementById('feedback-section'); // Section for feedback messages
+      const feedbackMessage = document.getElementById('feedback-message'); // Display specific feedback
 
-      // Reset previous displays
+      // Reset previous displays (if any)
       routineDisplay.innerHTML = '';
       feedbackSection.classList.add('hidden');
 
       try {
-        // Send POST request to generate routine
+        // Send POST request to generate routine based on the selected goal and experience level
         const response = await fetch('../actions/get_routines.php', {
           method: 'POST',
           credentials: 'include',
@@ -112,19 +114,19 @@
         const data = await response.json();
 
         if (data.redirect) {
-          // If user is not logged in, redirect to login page
+          // If the user is not logged in, redirect to the login page
           window.location.href = data.redirect;
           return;
         }
 
         if (data.error) {
-          // Show error feedback
+          // Show error feedback if there is an issue generating the routine
           feedbackMessage.textContent = data.error;
           feedbackSection.classList.remove('hidden');
           return;
         }
 
-        // Create routine overview card
+        // Create the routine overview card dynamically
         const overviewCard = `
           <div class="routine-overview p-4 bg-green-100 rounded-lg shadow-md">
             <div class="flex justify-between items-center mb-4">
@@ -143,29 +145,30 @@
                     <svg class="h-6 w-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path d="M6 2l6 6 6-6M6 22l6-6 6 6" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                    <span>${exercise[0]}</span>
+                    <span>${exercise[0]}</span> <!-- Display exercise name -->
                   </div>
-                  <span class="text-gray-600">${exercise[1]} mins</span>
-                  <input type="checkbox" class="h-5 w-5 text-green-500 border-gray-300 rounded">
+                  <span class="text-gray-600">${exercise[1]} mins</span> <!-- Display exercise duration -->
+                  <input type="checkbox" class="h-5 w-5 text-green-500 border-gray-300 rounded"> <!-- Checkbox to mark completion -->
                 </li>
               `).join('')}
             </ul>
           </div>
         `;
 
+        // Insert the routine overview card into the display section
         routineDisplay.innerHTML = overviewCard;
 
-        // Show success feedback
+        // Show success feedback with routine generation details
         feedbackMessage.textContent = `Successfully generated ${goal} routine for ${experience} level!`;
         feedbackSection.classList.remove('hidden');
 
       } catch (error) {
+        // Handle unexpected errors and display a message
         console.error('Failed to generate routine:', error);
         feedbackMessage.textContent = 'An unexpected error occurred. Please try again.';
         feedbackSection.classList.remove('hidden');
       }
     });
-
   </script>
 </body>
 </html>

@@ -6,10 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Health Tips</title>
     <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
+    <!-- Include Tailwind CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
 </head>
 
 <body class="bg-gray-50 text-gray-900 font-sans min-h-screen">
+    <!-- Header Section -->
     <header class="bg-gradient-to-r from-blue-500 to-green-400 text-white py-6">
         <div class="container mx-auto px-6 flex justify-between items-center">
             <h1 class="text-2xl font-semibold">Admin Dashboard - Tips Management</h1>
@@ -17,6 +19,7 @@
         </div>
     </header>
 
+    <!-- Main Container -->
     <div class="container mx-auto px-6 py-12">
         <h1 class="text-3xl font-semibold text-center mb-8">Manage Health Tips</h1>
 
@@ -25,8 +28,10 @@
             <h2 class="text-2xl font-semibold mb-4">Add a New Health Tip</h2>
             <div class="mb-4">
                 <label for="tip-text" class="block font-medium mb-2">Health Tip Text</label>
+                <!-- Input for health tip text -->
                 <textarea id="tip-text" class="w-full border rounded p-2" rows="3" required></textarea>
             </div>
+            <!-- Submit button to add a health tip -->
             <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">
                 Add Tip
             </button>
@@ -35,43 +40,50 @@
         <!-- Health Tips List -->
         <div class="bg-white p-6 rounded-lg shadow-md">
             <h2 class="text-2xl font-semibold mb-4">Existing Health Tips</h2>
+            <!-- Table to display health tips -->
             <table class="table-auto w-full border-collapse border border-gray-200">
                 <thead>
                     <tr class="bg-gray-100">
+                        <!-- Table headers -->
                         <th class="border px-4 py-2">Tip ID</th>
                         <th class="border px-4 py-2">Health Tip</th>
                         <th class="border px-4 py-2">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="tips-table-body">
-                    <!-- JavaScript will populate this -->
+                    <!-- JavaScript will dynamically populate this table -->
                 </tbody>
             </table>
         </div>
     </div>
 
+    <!-- JavaScript -->
     <script>
+        // API endpoint for health tips
         const apiUrl = '../actions/health_tips_api.php';
 
-        // Fetch all health tips
+        // Function to fetch all health tips from the server
         async function fetchHealthTips() {
             try {
                 const response = await fetch(apiUrl);
                 const tips = await response.json();
 
+                // Validate response format
                 if (!Array.isArray(tips)) {
                     throw new Error('Invalid data format received');
                 }
 
                 const tableBody = document.getElementById('tips-table-body');
-                tableBody.innerHTML = '';
+                tableBody.innerHTML = ''; // Clear table contents
 
+                // Populate table rows with fetched tips
                 tips.forEach(tip => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td class="border px-4 py-2">${tip.tip_id}</td>
                         <td class="border px-4 py-2">${tip.tip_text}</td>
                         <td class="border px-4 py-2">
+                            <!-- Delete button for each health tip -->
                             <button class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
                                 onclick="deleteHealthTip(${tip.tip_id})">Delete</button>
                         </td>
@@ -84,12 +96,13 @@
             }
         }
 
-        // Add a new health tip
+        // Function to add a new health tip
         async function addHealthTip(event) {
-            event.preventDefault();
+            event.preventDefault(); // Prevent default form submission
             const tipTextElement = document.getElementById('tip-text');
             const tipText = tipTextElement.value.trim();
 
+            // Validate input
             if (!tipText) {
                 alert('Please fill in the health tip text.');
                 tipTextElement.focus(); // Focus on the input field if validation fails
@@ -97,6 +110,7 @@
             }
 
             try {
+                // Send POST request to add the tip
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -117,13 +131,15 @@
             }
         }
 
-        // Delete a health tip
+        // Function to delete a health tip
         async function deleteHealthTip(tipId) {
+            // Confirm deletion from the user
             if (!confirm('Are you sure you want to delete this tip?')) {
                 return;
             }
 
             try {
+                // Send DELETE request to remove the tip
                 const response = await fetch(apiUrl, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
@@ -143,7 +159,7 @@
             }
         }
 
-        // Fetch health tips on page load
+        // Fetch health tips when the page loads
         document.addEventListener('DOMContentLoaded', fetchHealthTips);
     </script>
 </body>

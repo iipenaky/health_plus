@@ -2,28 +2,35 @@
 <html lang="en">
 
 <head>
+    <!-- Meta Tags for Character Set, Viewport, and Compatibility -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- Page Title and Favicon -->
     <title>Dashboard - HealthPlus</title>
     <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
+
+    <!-- Link to TailwindCSS for Styling -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    
+    <!-- Link to Chart.js for Creating Graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
+
     <!-- Wrapper for all content -->
     <div class="flex-grow">
         <!-- Header Section -->
         <header class="bg-gradient-to-r from-green-400 to-blue-500 text-white py-6">
             <div class="container mx-auto flex justify-between items-center px-6">
+                <!-- Site Name or Logo -->
                 <div class="text-xl font-semibold">
                     <span class="text-2xl font-bold">HealthPlus</span>
                 </div>
-                <!-- Navigation Links -->
+
+                <!-- Navigation Links for User Dashboard -->
                 <nav class="flex space-x-6">
                     <a href="dashboard.html" class="hover:text-gray-200">Dashboard</a>
                     <a href="tracking.html" class="hover:text-gray-200">Tracking</a>
@@ -34,127 +41,137 @@
                     <a href="meal_planner.html" class="hover:text-gray-200">Meal Planner</a>
                     <a href="settings.html" class="hover:text-gray-200">Settings</a>
                 </nav>
-                <!-- Logout Button -->
+
+                <!-- Log Out Button -->
                 <div>
-                    <a href="logout.html"
-                        class="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition">Log Out</a>
+                    <a href="logout.html" class="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition">Log Out</a>
                 </div>
             </div>
         </header>
 
         <!-- Dashboard Section -->
         <section class="container mx-auto px-6 py-12">
+            <!-- Welcome Title -->
             <h1 class="text-3xl font-semibold text-center mb-8">Welcome to Your Dashboard</h1>
-        
-            <!-- Summary Cards -->
+
+            <!-- Summary Cards for Health Data -->
             <div id="dashboard-data" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Steps Card -->
                 <div class="bg-white p-6 rounded-lg shadow-lg text-center">
                     <h3 class="text-xl font-semibold mb-2">Steps</h3>
                     <p id="steps" class="text-3xl font-bold">Loading...</p>
                     <p class="text-sm text-gray-500">Steps today</p>
                 </div>
+
+                <!-- Water Intake Card -->
                 <div class="bg-white p-6 rounded-lg shadow-lg text-center">
                     <h3 class="text-xl font-semibold mb-2">Water Intake</h3>
                     <p id="water-intake" class="text-3xl font-bold">Loading...</p>
                     <p class="text-sm text-gray-500">Water consumed today</p>
                 </div>
+
+                <!-- Sleep Card -->
                 <div class="bg-white p-6 rounded-lg shadow-lg text-center">
                     <h3 class="text-xl font-semibold mb-2">Sleep</h3>
                     <p id="sleep-hours" class="text-3xl font-bold">Loading...</p>
                     <p class="text-sm text-gray-500">Sleep duration</p>
                 </div>
+
+                <!-- Recent Mood Card -->
                 <div class="bg-white p-6 rounded-lg shadow-lg text-center">
                     <h3 class="text-xl font-semibold mb-2">Recent Mood</h3>
                     <p id="recent-mood" class="text-3xl font-bold">Loading...</p>
                     <p class="text-sm text-gray-500">Last recorded mood</p>
                 </div>
             </div>
-        
-            <!-- Health Tip Section -->
+
+            <!-- Health Tip of the Day Section -->
             <div class="bg-gradient-to-r from-green-200 via-green-300 to-green-400 p-6 rounded-lg shadow-lg text-center mt-12">
                 <h2 class="text-2xl font-bold mb-4">Health Tip of the Day</h2>
                 <p id="health-tip" class="text-lg text-gray-800 italic">"Loading health tip..."</p>
             </div>
-        
-            <!-- Chart Section -->
+
+            <!-- Chart Section for Visual Data -->
             <div class="mt-8">
-                <canvas id="dashboard-chart" width="400" height="200"></canvas>
+                <canvas id="dashboard-chart" width="400" height="200"></canvas> <!-- Chart for health data visualization -->
             </div>
         </section>
-        
+
     </div>
 
-    <!-- Footer -->
+    <!-- Footer Section -->
     <footer class="bg-gray-800 text-white py-6 text-center">
         <p>© 2024 HealthPlus. All Rights Reserved.</p>
     </footer>
 
+    <!-- JavaScript for Fetching Dashboard Data and Updating UI -->
     <script>
         // Function to fetch health tip and other dashboard data
         async function fetchDashboardData() {
             try {
+                // Make a GET request to fetch data from the server
                 const response = await fetch('../actions/dashboard.php', {
                     method: 'GET',
-                    credentials: 'include'
+                    credentials: 'include'  // Include credentials in the request (like cookies)
                 });
 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    throw new Error(`HTTP error! Status: ${response.status}`); // Handle HTTP errors
                 }
 
                 const data = await response.json();
 
-                // Check if a redirect is necessary
+                // Check if redirection is required (e.g., user is not logged in)
                 if (data.redirect) {
-                    window.location.href = data.redirect;  // Redirect the user
+                    window.location.href = data.redirect;  // Redirect the user if necessary
                     return;
                 }
 
-                // If no redirect, continue with normal dashboard updates
+                // Handle errors in the data response
                 if (data.error) {
-                    throw new Error(data.error);   
+                    throw new Error(data.error);  // Display error if present
                 }
 
-                // Update the dashboard with fetched data
+                // Update the dashboard with the fetched data
                 document.getElementById('steps').textContent = data.total_steps;
                 document.getElementById('water-intake').textContent = `${data.total_water_intake} L`;
                 document.getElementById('sleep-hours').textContent = `${data.total_sleep_hours} h`;
                 document.getElementById('recent-mood').textContent = data.last_mood || 'No mood recorded';
 
-                // Update the health tip
+                // Update the health tip of the day
                 document.getElementById('health-tip').textContent = data.health_tip;
 
-                // Prepare chart data
+                // Prepare chart data for displaying health statistics
                 const chartData = {
                     labels: ['Steps', 'Water Intake', 'Sleep Hours'],
                     datasets: [{
                         label: 'Today\'s Health Data',
                         data: [data.total_steps, data.total_water_intake, data.total_sleep_hours],
-                        backgroundColor: ['#4CAF50', '#2196F3', '#FFC107'],
-                        borderColor: ['#388E3C', '#1976D2', '#F57C00'],
-                        borderWidth: 1
+                        backgroundColor: ['#4CAF50', '#2196F3', '#FFC107'],  // Colors for the bars
+                        borderColor: ['#388E3C', '#1976D2', '#F57C00'],  // Border colors for the bars
+                        borderWidth: 1  // Border width of the bars
                     }]
                 };
 
-                // Create the chart
+                // Create the chart using Chart.js
                 const ctx = document.getElementById('dashboard-chart').getContext('2d');
                 new Chart(ctx, {
-                    type: 'bar',
+                    type: 'bar',  // Set chart type to 'bar'
                     data: chartData,
                     options: {
-                        responsive: true,
+                        responsive: true,  // Make the chart responsive
                         scales: {
                             y: {
-                                beginAtZero: true
+                                beginAtZero: true  // Ensure the y-axis starts at 0
                             }
                         }
                     }
                 });
 
             } catch (error) {
-                console.error('Failed to fetch data:', error);
+                console.error('Failed to fetch data:', error);  // Log any errors
 
-                // Display errors on the UI
+                // Display error messages in the UI in case of a failure
                 document.getElementById('steps').textContent = 'Error';
                 document.getElementById('water-intake').textContent = 'Error';
                 document.getElementById('sleep-hours').textContent = 'Error';
@@ -163,9 +180,8 @@
             }
         }
 
-        // Call the function when the page loads
+        // Call the function when the page loads to fetch data
         document.addEventListener('DOMContentLoaded', fetchDashboardData);
-
     </script>
 </body>
 

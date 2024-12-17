@@ -99,50 +99,71 @@
       <p>© 2024 HealthPlus. All Rights Reserved.</p>
   </footer>
 
+  <!-- JavaScript for AJAX Form Submission and Validation -->
   <script>
-      $(document).ready(function () {
-          $('#healthForm').on('submit', function (e) {
-              e.preventDefault(); 
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('healthForm').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent the default form submission
 
-              var steps = $('#steps').val().trim();
-              var water = $('#water').val().trim();
-              var sleep = $('#sleep').val().trim();
-              var mood = $('#mood').val().trim();
-              var exercise = $('#exercise').val().trim();
+            // Get all input values
+            const steps = document.getElementById('steps').value.trim();
+            const water = document.getElementById('water').value.trim();
+            const sleep = document.getElementById('sleep').value.trim();
+            const mood = document.getElementById('mood').value.trim();
+            const exercise = document.getElementById('exercise').value.trim();
 
-              var validationMessage = "";
+            // Initialize validation message
+            let validationMessage = "";
 
-              if (!steps || !water || !sleep || !mood || !exercise) {
-                  validationMessage = "All fields are required. Please fill out all fields.";
-              }
+            // Check if any field is empty
+            if (!steps || !water || !sleep || !mood || !exercise) {
+                validationMessage = "All fields are required. Please fill out all fields.";
+            }
 
-              if (validationMessage) {
-                  $('#validationMessage').text(validationMessage).removeClass('hidden');
-                  $('#successMessage').addClass('hidden');
-              } else {
-                  $('#validationMessage').addClass('hidden'); 
-                  $.ajax({
-                      url: $(this).attr('action'),  
-                      method: 'POST',
-                      data: $(this).serialize(),
-                      dataType: 'json', 
-                      success: function(response) {
-                          if (response.success) {
-                              $('#successMessage').text("Your health data has been saved successfully!").removeClass('hidden');
-                              $('#validationMessage').addClass('hidden');  
-                               $('#healthForm')[0].reset();
-                          } else if (response.error) {
-                              $('#validationMessage').text(response.error).removeClass('hidden');
-                          }
-                      },
-                      error: function(xhr, status, error) {
-                          console.error('AJAX request failed: ' + status + ', ' + error);
-                          $('#validationMessage').text('An unexpected error occurred.').removeClass('hidden');
-                      }
-                  });
-              }
-          });
-      });
-  </script>
+            // If validation fails, show error message
+            const validationMessageElement = document.getElementById('validationMessage');
+            const successMessageElement = document.getElementById('successMessage');
+            
+            if (validationMessage) {
+                validationMessageElement.textContent = validationMessage;
+                validationMessageElement.classList.remove('hidden');
+                successMessageElement.classList.add('hidden'); // Hide success message if error occurs
+                return;
+            } else {
+                validationMessageElement.classList.add('hidden'); // Hide validation message if no error
+            }
+
+            // Prepare form data for submission
+            const formData = new FormData(this);
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // If successful, show the success message
+                    successMessageElement.textContent = "Your health data has been saved successfully!";
+                    successMessageElement.classList.remove('hidden');
+                    validationMessageElement.classList.add('hidden'); // Hide any previous error message
+
+                    // Reset form fields
+                    this.reset();
+                } else if (data.error) {
+                    // Show error message if any
+                    validationMessageElement.textContent = data.error;
+                    validationMessageElement.classList.remove('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Fetch request failed:', error);
+                validationMessageElement.textContent = 'An unexpected error occurred.';
+                validationMessageElement.classList.remove('hidden');
+            });
+        });
+    });
+</script>
+
 </body>
 </html>
