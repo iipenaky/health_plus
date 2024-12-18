@@ -98,7 +98,7 @@ The application is hosted on a live server. Access it at:
 ## Video Demo
 
 Watch a walkthrough of the application here:  
-[**Video Link**](##pending)
+[**Video Link**](https://www.youtube.com/watch?v=AjdGugpHRH4&ab_channel=PenakyAkyniel)
 
 ---
 
